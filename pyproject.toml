@@ -1,0 +1,58 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "source-preserve-md"
+version = "0.8.0"
+readme = "README.md"
+license = "AGPL-3.0-only"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+description = "AI 호출 없이 원문·구조·자산과 근거를 함께 보존하는 로컬 Markdown 추출기"
+requires-python = ">=3.12"
+dependencies = [
+  "beautifulsoup4>=4.13,<5",
+  "charset-normalizer>=3.4,<4",
+  "defusedxml>=0.7,<1",
+  "flask>=3.1,<4",
+  "httpx>=0.28,<1",
+  "lxml>=5,<7",
+  "markdown-it-py>=3,<5",
+  "olefile>=0.47,<1",
+  "openpyxl>=3.1,<4",
+  "pillow>=13,<14",
+  "playwright>=1.50,<2",
+  "pyhwp==0.1b15",
+  "pymupdf>=1.25,<2",
+  "python-docx>=1.2,<2",
+  "python-pptx>=1,<2",
+  "pyyaml>=6,<7",
+  "six>=1.17,<2",
+  "striprtf>=0.0.28,<1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10"]
+
+[project.scripts]
+preserve-md = "source_preserve_md.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/source_preserve_md"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"skills/source-preserve-md/SKILL.md" = "source_preserve_md/skill/SKILL.md"
+"skills/source-preserve-md/scripts/run.py" = "source_preserve_md/skill/scripts/run.py"
+"skills/source-preserve-md/agents/openai.yaml" = "source_preserve_md/skill/agents/openai.yaml"
+"skills/source-preserve-md/references/dom-snapshot.md" = "source_preserve_md/skill/references/dom-snapshot.md"
+"skills/source-preserve-md/references/legacy-and-review.md" = "source_preserve_md/skill/references/legacy-and-review.md"
+
+[tool.hatch.build.targets.sdist]
+include = ["/src", "/skills", "/tests", "/scripts", "/examples/legacy-inputs", "/examples/quality-inputs/sources.json", "/examples/quality-inputs/python-controlflow.html", "/examples/quality-inputs/PYTHON_LICENSE.txt", "/examples/구조보존_시험.html", "/docs", "/README.md", "/LICENSE", "/THIRD_PARTY_NOTICES.md", "/pyproject.toml", "/uv.lock", "/시작.command"]
+exclude = ["**/__pycache__", "**/.engine.json"]
+artifacts = ["/SECURITY.md", "/.github/workflows/ci.yml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["browser: controlled browser integration; install Chromium first"]
+

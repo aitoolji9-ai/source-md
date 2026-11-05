@@ -1,0 +1,158 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/python-openxml/python-docx/e45454602b53e8e572b179ccf1c91093ec9f4ed7/tests/test_files/having-images.docx",
+    "filename": "having-images.docx",
+    "size": 132875,
+    "sha256": "72f40baa1b89e4849e817121dbbf148ed78e51be9bf04d8e6f4bc1494aa517b7",
+    "repo": "python-openxml/python-docx",
+    "commit": "e45454602b53e8e572b179ccf1c91093ec9f4ed7",
+    "path": "tests/test_files/having-images.docx"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/python-openxml/python-docx/e45454602b53e8e572b179ccf1c91093ec9f4ed7/features/steps/test_files/blk-paras-and-tables.docx",
+    "filename": "blk-paras-and-tables.docx",
+    "size": 15649,
+    "sha256": "93f40c8a23dbcbc75b073e0f7050a5f064e6aff58c1bc6c6003359122e9faf79",
+    "repo": "python-openxml/python-docx",
+    "commit": "e45454602b53e8e572b179ccf1c91093ec9f4ed7",
+    "path": "features/steps/test_files/blk-paras-and-tables.docx"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/python-openxml/python-docx/e45454602b53e8e572b179ccf1c91093ec9f4ed7/features/steps/test_files/par-hyperlinks.docx",
+    "filename": "par-hyperlinks.docx",
+    "size": 12385,
+    "sha256": "206539619eb347b1cd5b3fe88031cc18327accfe5d34a886f3d9120115f6bdad",
+    "repo": "python-openxml/python-docx",
+    "commit": "e45454602b53e8e572b179ccf1c91093ec9f4ed7",
+    "path": "features/steps/test_files/par-hyperlinks.docx"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/python-openxml/python-docx/e45454602b53e8e572b179ccf1c91093ec9f4ed7/features/steps/test_files/num-having-numbering-part.docx",
+    "filename": "num-having-numbering-part.docx",
+    "size": 24334,
+    "sha256": "66b45ace7afa65acab6036bdc63d9416554576df633c13a6774bf41d4a60a47e",
+    "repo": "python-openxml/python-docx",
+    "commit": "e45454602b53e8e572b179ccf1c91093ec9f4ed7",
+    "path": "features/steps/test_files/num-having-numbering-part.docx"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/python-openxml/python-docx/e45454602b53e8e572b179ccf1c91093ec9f4ed7/features/steps/test_files/hdr-header-footer.docx",
+    "filename": "hdr-header-footer.docx",
+    "size": 18079,
+    "sha256": "5a4cb270680d1365688073e4816be98c2ab1a7ba2921d86cb3efadca97a72d27",
+    "repo": "python-openxml/python-docx",
+    "commit": "e45454602b53e8e572b179ccf1c91093ec9f4ed7",
+    "path": "features/steps/test_files/hdr-header-footer.docx"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/python-openxml/python-docx/e45454602b53e8e572b179ccf1c91093ec9f4ed7/features/steps/test_files/comments-rich-para.docx",
+    "filename": "comments-rich-para.docx",
+    "size": 20023,
+    "sha256": "8ee6b9bd84c59169bc7e5838003806edefb2c51920f40035b7879d4a3414deed",
+    "repo": "python-openxml/python-docx",
+    "commit": "e45454602b53e8e572b179ccf1c91093ec9f4ed7",
+    "path": "features/steps/test_files/comments-rich-para.docx"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/scanny/python-pptx/278b47b1dedd5b46ee84c286e77cdfb0bf4594be/features/steps/test_files/tbl-cell.pptx",
+    "filename": "tbl-cell.pptx",
+    "size": 28247,
+    "sha256": "02df45aad4927c4c471d76d4f638e82e14c42d4db773103cf8f950f73b0ae976",
+    "repo": "scanny/python-pptx",
+    "commit": "278b47b1dedd5b46ee84c286e77cdfb0bf4594be",
+    "path": "features/steps/test_files/tbl-cell.pptx"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/scanny/python-pptx/278b47b1dedd5b46ee84c286e77cdfb0bf4594be/features/steps/test_files/shp-picture.pptx",
+    "filename": "shp-picture.pptx",
+    "size": 91730,
+    "sha256": "20b6295563e217804af81f8b5fee5e5cef9e766ac401d825d536ffe6d674edd0",
+    "repo": "scanny/python-pptx",
+    "commit": "278b47b1dedd5b46ee84c286e77cdfb0bf4594be",
+    "path": "features/steps/test_files/shp-picture.pptx"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/scanny/python-pptx/278b47b1dedd5b46ee84c286e77cdfb0bf4594be/features/steps/test_files/shp-groupshape.pptx",
+    "filename": "shp-groupshape.pptx",
+    "size": 23786,
+    "sha256": "37c9a0bd919f9fc4e89600939cbaf798e79c6aaf96406aee5bba2828cea3e3a6",
+    "repo": "scanny/python-pptx",
+    "commit": "278b47b1dedd5b46ee84c286e77cdfb0bf4594be",
+    "path": "features/steps/test_files/shp-groupshape.pptx"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/scanny/python-pptx/278b47b1dedd5b46ee84c286e77cdfb0bf4594be/features/steps/test_files/prs-notes.pptx",
+    "filename": "prs-notes.pptx",
+    "size": 86792,
+    "sha256": "664dc13965c7ea24688256d1ecd869936ca51a2e94d2aefe0f614bb8554976ea",
+    "repo": "scanny/python-pptx",
+    "commit": "278b47b1dedd5b46ee84c286e77cdfb0bf4594be",
+    "path": "features/steps/test_files/prs-notes.pptx"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/scanny/python-pptx/278b47b1dedd5b46ee84c286e77cdfb0bf4594be/features/steps/test_files/cht-category-access.pptx",
+    "filename": "cht-category-access.pptx",
+    "size": 222711,
+    "sha256": "320d242ed8ac66a6db8e4a81da74e006d862611b2da5b181cc41755e6f3b6659",
+    "repo": "scanny/python-pptx",
+    "commit": "278b47b1dedd5b46ee84c286e77cdfb0bf4594be",
+    "path": "features/steps/test_files/cht-category-access.pptx"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/pandas-dev/pandas/c42cc0a6fc9f748ba01fa1e59ff67eaf44012bd0/pandas/tests/io/data/excel/test1.xlsx",
+    "filename": "test1.xlsx",
+    "size": 12074,
+    "sha256": "b6fe2d9ae5afd6d0bdfefbae9c0c1649d8bf883e183a153cb76f2a8a548cef11",
+    "repo": "pandas-dev/pandas",
+    "commit": "c42cc0a6fc9f748ba01fa1e59ff67eaf44012bd0",
+    "path": "pandas/tests/io/data/excel/test1.xlsx"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/pandas-dev/pandas/c42cc0a6fc9f748ba01fa1e59ff67eaf44012bd0/pandas/tests/io/data/excel/testmultiindex.xlsx",
+    "filename": "testmultiindex.xlsx",
+    "size": 22743,
+    "sha256": "21ad90d1e4c0d6227fb850c6e09f14a12229cb28c98ac1c9f89c5c0dc80f9d0a",
+    "repo": "pandas-dev/pandas",
+    "commit": "c42cc0a6fc9f748ba01fa1e59ff67eaf44012bd0",
+    "path": "pandas/tests/io/data/excel/testmultiindex.xlsx"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/pandas-dev/pandas/c42cc0a6fc9f748ba01fa1e59ff67eaf44012bd0/pandas/tests/io/data/excel/test_multisheet.xlsx",
+    "filename": "test_multisheet.xlsx",
+    "size": 11296,
+    "sha256": "2e2093238e2304bd6bce5db643db89cb6ff45774285701a43ad95c095359d496",
+    "repo": "pandas-dev/pandas",
+    "commit": "c42cc0a6fc9f748ba01fa1e59ff67eaf44012bd0",
+    "path": "pandas/tests/io/data/excel/test_multisheet.xlsx"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/pandas-dev/pandas/c42cc0a6fc9f748ba01fa1e59ff67eaf44012bd0/pandas/tests/io/data/excel/chartsheet.xlsx",
+    "filename": "chartsheet.xlsx",
+    "size": 20069,
+    "sha256": "a985d20bc91a29dfc9affdb6086275c56cab949396c19aca0f287e7ee30f9575",
+    "repo": "pandas-dev/pandas",
+    "commit": "c42cc0a6fc9f748ba01fa1e59ff67eaf44012bd0",
+    "path": "pandas/tests/io/data/excel/chartsheet.xlsx"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/pandas-dev/pandas/c42cc0a6fc9f748ba01fa1e59ff67eaf44012bd0/pandas/tests/io/data/excel/test_types.xlsx",
+    "filename": "test_types.xlsx",
+    "size": 9010,
+    "sha256": "b064e5a2ebe306b4fbcf5aeeb229e2b841dd7a585b19c1dedbb949481807dcaf",
+    "repo": "pandas-dev/pandas",
+    "commit": "c42cc0a6fc9f748ba01fa1e59ff67eaf44012bd0",
+    "path": "pandas/tests/io/data/excel/test_types.xlsx"
+  },
+  {
+    "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+    "filename": "w3c-dummy.pdf",
+    "size": 13264,
+    "sha256": "3df79d34abbca99308e79cb94461c1893582604d68329a41fd4bec1885e6adb4"
+  },
+  {
+    "url": "https://docs.python.org/3/tutorial/controlflow.html",
+    "filename": "python-controlflow.html",
+    "size": 140178,
+    "sha256": "cce451e988cfd95d2157a96a7829efc8f921b6c8868a43d7ac061be73e5217b3"
+  }
+]

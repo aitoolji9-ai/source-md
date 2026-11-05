@@ -1,0 +1,3 @@
+interface:
+  display_name: "원문결 Markdown 보존"
+  short_description: "로컬 원문결 엔진으로 원문·구조를 보존하고 이미지 문자를 OCR로 추출"

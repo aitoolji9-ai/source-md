@@ -1,0 +1,20 @@
+[
+  {
+    "filename": "table.hwp",
+    "url": "https://raw.githubusercontent.com/mete0r/pyhwp/83239f0d3bdf438b2c9f7dcff455a6e841154a39/tests/hwp5_tests/fixtures/table.hwp",
+    "sha256": "df4746b82eea954a2aba36eb7dc51acf8cd975dced5e3331a1838932eaf123f9",
+    "bytes": 14848
+  },
+  {
+    "filename": "footnote-endnote.hwp",
+    "url": "https://raw.githubusercontent.com/mete0r/pyhwp/83239f0d3bdf438b2c9f7dcff455a6e841154a39/tests/hwp5_tests/fixtures/footnote-endnote.hwp",
+    "sha256": "4f580388ac5d320a4abe141d0886b7aff296a14a573c2ceac6dcc5fbda05b820",
+    "bytes": 14848
+  },
+  {
+    "filename": "password-12345.hwp",
+    "url": "https://raw.githubusercontent.com/mete0r/pyhwp/83239f0d3bdf438b2c9f7dcff455a6e841154a39/tests/hwp5_tests/fixtures/password-12345.hwp",
+    "sha256": "e86aac42e3efbcc2e06cc50e628705dce710bec0c252961b7d52c87e3c6b0660",
+    "bytes": 8192
+  }
+]

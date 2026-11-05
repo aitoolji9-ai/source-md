@@ -1,0 +1,57 @@
+name: Verify shared distribution
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
+        with:
+          version: '0.12.19'
+          enable-cache: true
+      - run: uv sync --frozen --extra dev
+      - run: uv run --frozen pytest -q -m 'not browser'
+      - run: uv build
+      - run: uv run --frozen python scripts/verify_distribution.py --wheel dist/source_preserve_md-0.8.0-py3-none-any.whl --out outputs/wheel-verification
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: verification-${{ matrix.os }}
+          path: |
+            outputs/wheel-verification/verification.json
+            outputs/wheel-verification/commands.log
+            dist/
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
+        with:
+          version: '0.12.19'
+      - run: uv sync --frozen --extra dev --python 3.12
+      - run: uv run --frozen python -m playwright install --with-deps chromium
+      - run: uv run --frozen pytest -q -m browser
+  dependencies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
+        with:
+          version: '0.12.19'
+      - run: uv export --frozen --no-dev --no-emit-project --format requirements-txt --output-file requirements.txt > /dev/null
+      - run: uvx --from pip-audit pip-audit --disable-pip --no-deps -r requirements.txt

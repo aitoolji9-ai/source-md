@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>원문결 · Markdown 보존 도구</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/"><span class="brand-mark">결</span><span>원문결<small>SOURCE TO MARKDOWN</small></span></a>
+    <div class="side-label">작업 공간</div>
+    <button class="nav-item active" id="new-job"><span>＋</span> 새로 변환하기</button>
+    <div class="side-heading"><span class="side-label">최근 보관함</span><button id="refresh" aria-label="보관함 새로고침">↻</button></div>
+    <div id="history" class="history"><p class="muted">아직 보관한 문서가 없습니다.</p></div>
+    <div class="local-note"><span class="dot"></span> 내 컴퓨터에서 처리<small>외부 AI API 호출 없음 · 로컬 OCR 지원<br>원본 파일은 그대로 보관</small></div>
+  </aside>
+
+  <main>
+    <header class="topbar"><div><span class="breadcrumb">작업 공간</span><span class="slash">/</span>원본 보존</div><span class="pill"><span class="dot"></span> LOCAL</span></header>
+    <section class="page-title"><div class="eyebrow">KEEP THE SOURCE. KEEP THE CONTEXT.</div><h1>원문을 다음 작업으로.</h1><p>파일과 웹페이지를, 출처와 구조가 이어지는 Markdown으로 보관하세요.</p></section>
+
+    <section class="workspace" id="input-section">
+      <div class="input-panel">
+        <div class="panel-title"><span class="step">01</span><h2>원본 가져오기</h2><span class="small-tag">로컬 추출</span></div>
+        <div class="tabs" role="tablist" aria-label="입력 종류"><button id="file-tab" class="selected" role="tab" aria-selected="true" aria-controls="file-pane">파일</button><button id="url-tab" role="tab" aria-selected="false" aria-controls="url-pane">웹페이지 URL</button></div>
+        <div id="file-pane" role="tabpanel" aria-labelledby="file-tab">
+          <label class="drop-zone" id="drop-zone" tabindex="0"><input type="file" id="files" multiple><span class="document-icon">↥</span><strong>파일을 놓거나 선택하세요</strong><span>여러 파일을 순서대로 처리합니다 · 파일당 최대 100MB</span><span class="choose-file">파일 선택</span></label>
+          <div id="file-list" class="file-list" aria-live="polite"></div>
+        </div>
+        <div id="url-pane" role="tabpanel" aria-labelledby="url-tab" hidden><label for="url">보관할 공개 웹페이지</label><input id="url" type="url" placeholder="https://example.com/article" autocomplete="url"><p class="field-note">입력한 한 페이지를 수집합니다. 로그인 정보는 사용하지 않습니다.</p></div>
+        <details class="options"><summary>추출 옵션 <span>이미지 문자 · 원격 자산 · 동적 로딩</span></summary><div class="option-body">
+          <label class="toggle-row"><input type="checkbox" id="ocr" checked><span><strong>이미지 속 글자도 로컬 OCR로 추출</strong><small>스캔·혼합 PDF와 보관된 이미지에 적용합니다. 인식 결과와 좌표를 함께 저장하며, 표 구조와 정확도는 원본 대조가 필요합니다.</small></span></label>
+          <label class="toggle-row"><input type="checkbox" id="download-assets" checked><span><strong>원격 이미지 함께 저장</strong><small>참조한 주소에서 자산을 내려받아 상대링크로 연결합니다.</small></span></label>
+          <label class="toggle-row"><input type="checkbox" id="dynamic"><span><strong>웹페이지를 브라우저로 로딩한 뒤 수집</strong><small>공개 URL 전용. 지연 로딩·접힌 details·프레임과 탭 전환 뒤의 본문을 수집합니다.</small></span></label>
+          <label class="toggle-row"><input type="checkbox" id="auto-tabs" checked><span><strong>동적 페이지의 탭 자동 수집</strong><small>표준·일부 비표준 탭과 iframe을 탐색하고 스크롤 중 바뀌는 본문도 보관합니다. 상한·미완결·전환 실패는 보고서에 남깁니다.</small></span></label>
+          <label>열어 본 탭의 DOM JSON (선택)<input type="file" id="dom-snapshot" accept=".json,application/json"><small>원본 HTML 한 파일과 함께 넣으세요. 저장한 각 상태를 순서대로 변환합니다.</small></label>
+          <div class="option-grid"><label>문자 인코딩<select id="encoding"><option value="">자동 판별</option><option value="utf-8">UTF-8</option><option value="cp949">CP949 (한국어)</option><option value="euc-kr">EUC-KR</option><option value="utf-16">UTF-16</option></select></label><label>본문 CSS 선택자 (선택)<input id="selector" placeholder="기본: body 전체 / 예: article"></label></div>
+        </div></details>
+        <div class="submit-row"><span id="input-hint">원본을 선택하면 시작할 수 있습니다.</span><button class="primary-button" id="convert" disabled>추출 시작 <span>↗</span></button></div>
+        <div id="progress" class="progress" role="status" hidden><span class="spinner"></span><span id="progress-text"></span></div>
+        <div id="error" class="error" role="alert" hidden></div>
+      </div>
+      <aside class="principles"><span class="tiny-caps">PRESERVATION FIRST</span><h3>내용만큼,<br>맥락도 남깁니다.</h3><div class="principle"><b>01</b><div><strong>원본 바이트 보관</strong><p>사본 해시를 대조하고 원본을 수정하지 않습니다.</p></div></div><div class="principle"><b>02</b><div><strong>구조와 자산 연결</strong><p>장절·페이지·시트·코드와 이미지의 출처를 함께 남깁니다.</p></div></div><div class="principle"><b>03</b><div><strong>확인한 범위만 표시</strong><p>MD의 표현 한계와 미추출 항목을 검증 보고서에서 확인합니다.</p></div></div><p class="fidelity-note">로컬 OCR은 머신러닝을 사용할 수 있습니다. OCR을 끄면 이미지 글자는 미추출로 표시합니다. 화면·시각 의미의 완전 동일성을 인증하지 않습니다.</p></aside>
+    </section>
+
+    <section class="result" id="result" hidden>
+      <div class="result-top"><div><div class="eyebrow">PRESERVED DOCUMENT</div><h2 id="result-title"></h2><p id="output-path" class="output-path"></p></div><div class="result-actions"><button id="validate" class="secondary-button">무결성 재검사</button><a id="open-review" class="secondary-button" target="_blank" rel="noopener">원본 대조·OCR 교정</a><button id="correct-job" class="secondary-button">교정 JSON 적용</button><input id="correction-file" type="file" accept=".json,application/json" hidden><a id="download-md" class="secondary-button">MD 받기</a><a id="download-zip" class="primary-button">전체 묶음 받기 ↓</a></div></div>
+      <div class="stats"><div><span>판별 형식</span><strong id="stat-format"></strong></div><div><span>추출 단위</span><strong id="stat-units"></strong></div><div><span>원본·저장 무결성</span><strong id="stat-integrity"></strong></div><div><span>제한·미확인 항목</span><strong id="stat-warnings"></strong></div></div>
+      <div class="result-tabs" role="tablist" aria-label="결과 보기"><button class="selected" data-view="preview" role="tab" aria-selected="true">읽기 화면</button><button data-view="markdown" role="tab" aria-selected="false">Markdown 원문</button><button data-view="report" role="tab" aria-selected="false">검증 보고서 <span id="warning-count"></span></button><button data-view="structure" role="tab" aria-selected="false">구조 데이터</button></div>
+      <div id="preview-view" class="document-preview"></div><pre id="markdown-view" class="source-view" hidden></pre><pre id="report-view" class="source-view report-view" hidden></pre><pre id="structure-view" class="source-view" hidden></pre>
+      <div class="result-footer"><span class="dot"></span> 원문·자산·구조 JSON을 함께 보관한 부분 추출본입니다. 제한·미확인은 보고서에서 확인하세요.</div>
+    </section>
+
+    <section class="format-guide"><div><span class="tiny-caps">SUPPORTED INPUTS</span><h3>자료의 형식에 맞춰 추출합니다.</h3></div><div class="format-groups"><p><strong>문서·데이터</strong><span>PDF · DOCX/DOC · PPTX/PPT · XLSX/XLS · CSV · EPUB</span></p><p><strong>웹·텍스트</strong><span>HTML · MHTML · MD · TXT · JSON · 코드</span></p><p><strong>부분 추출</strong><span>HWP5 본문·표·각주 · ODF · HWPX·RTF 텍스트 · SVG · 이미지 OCR</span></p><p><strong>원본 보관만</strong><span>미지원 구형 변형 · 음성·영상·기타 바이너리</span></p></div></section>
+    <footer class="page-footer"><span>원문결 <span class="muted">/ Source Preserve MD</span></span><span>해석을 더하기 전에, 원문부터.</span></footer>
+  </main>
+</body>
+</html>
+

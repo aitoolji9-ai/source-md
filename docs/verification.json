@@ -1,0 +1,86 @@
+{
+  "version": "0.8.0",
+  "date": "2026-11-06",
+  "environment": {
+    "os": "macOS",
+    "python": "3.12.14",
+    "pillow": "13.0.0",
+    "uv": "0.12.19"
+  },
+  "regression": {
+    "passed": 95,
+    "browser_module_deselected": 1
+  },
+  "public_documents": {
+    "passed": 18,
+    "expected": 18
+  },
+  "boundary_cases": {
+    "passed": 17,
+    "expected": 17
+  },
+  "real_korean_ocr": {
+    "passed": 3,
+    "comparison": "native PDF cell values and blanks; NFC/whitespace only"
+  },
+  "independent_forward_test": {
+    "initial_workflows_passed": 25,
+    "final_malformed_and_valid_bundle_checks_passed": 54,
+    "reproduced_unresolved_defects": 0
+  },
+  "dependency_audit": {
+    "packages": 39,
+    "known_vulnerabilities": 0,
+    "database_scope": "pip-audit public advisory service at execution"
+  },
+  "wheel_workflows": {
+    "passed": 17,
+    "note": "Initial wheel installation passed; final wheel is reinstalled and checked by the same script before delivery."
+  },
+  "browser_ui": {
+    "html_upload_validate_zip": true,
+    "dynamic_public_states": 5,
+    "source": "W3C ARIA tabs manual example",
+    "capture_code_unchanged_since_ui_test": true
+  },
+  "remote_ci": {
+    "configured": true,
+    "executed": false
+  },
+  "other_os_runtime_verified": false,
+  "source_sha256": {
+    "src/source_preserve_md/markdown_assets.py": "a5f44a20196c296f7f92d8dcf1f357aa488319cb02b66076c0e773547eea5fcb",
+    "src/source_preserve_md/server.py": "ad81a92a969a1d07ec54f7705eff33d94ec56797114217a601e031cd82dc4544",
+    "src/source_preserve_md/capture_tool.py": "cbc552544599885b94f64971c11a190899e1515a41101e60117a4f886fe01944",
+    "src/source_preserve_md/legacy.py": "9d900be34c327c823f0a67190e0797e48df24f9913099cb8782b1e2e46219755",
+    "src/source_preserve_md/pdf_continuation.py": "a3cd4fb4c75519e84b95076b375dda48de8e24881fb3c2d0e10bc95db02f594b",
+    "src/source_preserve_md/html_extract.py": "042407a4fec614a6588b7568bf268d5453c704f3386f83f325b97aaa33a4779e",
+    "src/source_preserve_md/dom_snapshot.py": "5684dddc128ca4ace536ca3df04ccb38f2c3819f9dd6353725e55d4e3edac7cb",
+    "src/source_preserve_md/__init__.py": "65e2a20f37a24cd90dcf7d5ded18ef0e9df557834e9640b548f667a90c8d7c93",
+    "src/source_preserve_md/review.py": "fc6a290c95dd120e8552aef73a4e9ea1bb08c1cac7b6d02a6efba4f9c6ae6a8b",
+    "src/source_preserve_md/integration.py": "749b588957c471cedc9427b5ab38a195858c463b87c9ef746921cdca0065d30c",
+    "src/source_preserve_md/model.py": "2deebcec809b764a2870a59c0edd93a61f1ae180d096ee6443aa349022ef5637",
+    "src/source_preserve_md/ocr.py": "a2e27402826e5d5dbdf511016bfcafce68980d1d62ecf54033e941a2e4139580",
+    "src/source_preserve_md/engine.py": "edae642f7fa7f433386f779f4933ed985d718f73550f7079d89acbd81f5c1131",
+    "src/source_preserve_md/cli.py": "0c96ec7c2f5707b689c5e77a3fc18e9a956e5c2eb593c0fe01b0fe3be6554953",
+    "src/source_preserve_md/network.py": "552d5f0daf4561f7b7aba868d4f4046273b171f4b1f923f9db0faa1b3cf048cd",
+    "src/source_preserve_md/raster_layout.py": "4cb1253db440593c27265d566560f7d445daa21138b7cf0f7d6559925e35d46e",
+    "src/source_preserve_md/office_semantics.py": "09ec1665b9f709073be66582a97c2e688032a1b981951464eae79fa4d8dd3a1b",
+    "src/source_preserve_md/ocr_refine.py": "4e2a1ff239c3542d0c4167346ab62d4d3bef2939610bb74db220b429fbdaff6d",
+    "src/source_preserve_md/odf_extract.py": "6463c39e2e8091082e9373ca30ab34a39a19702bdad4fe75b4d3497b21c451e0",
+    "src/source_preserve_md/vision_ocr.swift": "55c7c9b943f8f22507b36eaa104e2dc3416b6a89dd5f00668581b6146377e753",
+    "src/source_preserve_md/__main__.py": "76fa916e93e0ae1a6c1bb51dcc0bcf289c014e9f760a47165f8a84401ccf41d7",
+    "src/source_preserve_md/adapters.py": "25014618e0a00bee352bf167087fc22b440a1deb19cada06a82c48c40026dc58",
+    "src/source_preserve_md/web/review.css": "188e07cbcf9df833e58185c2bbd2b8c72d51c1593349297d18ff3b0276808d5c",
+    "src/source_preserve_md/web/review.js": "59bc924ec51f16dfc69eb618b47a00f88f72a51e71d093c9bbb23cdcd6bea001",
+    "src/source_preserve_md/web/index.html": "d1f2da7e560b725d968a6731a8771a026655be9e6729377f43cdc9aa02ffb143",
+    "src/source_preserve_md/web/tab-collector.js": "d8550bb95aca6fa9ffda7161dca6b76303a8825589ee5926af02dc60fe180e38",
+    "src/source_preserve_md/web/style.css": "4800b8248b0ec0353c0b1937b63679b6b2d8124a14f122b530c8643fcf35445f",
+    "src/source_preserve_md/web/dom-capture.js": "c00f86536842251a1ba97dc6ded449800f5b4adaf7dd117afe70c33351f0ff11",
+    "src/source_preserve_md/web/app.js": "c55189f899ab85caf043acec14abf2feed90d2f0ec5297d55a0c51a50a96d12a"
+  },
+  "legacy_documents": {
+    "passed": 8,
+    "expected": 8
+  }
+}
