@@ -101,6 +101,8 @@ Hermes도 해당 환경의 스킬 폴더를 `--target`으로 지정합니다. �
 
 ## 검증·공유
 
+[공개 저장소에서 내려받아 설치한 검증 결과](docs/PUBLISHED_VERIFICATION.md)와 [GitHub Actions](https://github.com/aitoolji9-ai/source-preserve-md/actions/workflows/ci.yml)를 확인할 수 있습니다.
+
 ```sh
 uv sync --frozen --extra dev
 uv run --frozen pytest -q -m 'not browser'

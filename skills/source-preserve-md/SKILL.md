@@ -3,7 +3,7 @@ name: source-preserve-md
 description: "호출명 마크다운 추출: 파일·웹페이지의 원문과 구조를 Markdown으로 추출·보존하고 이미지 문자는 로컬 OCR로 보완."
 metadata:
   version: 0.8.0
-  platforms: [macos]
+  platforms: [macos, linux]
   hermes:
     tags: [markdown, 마크다운 추출, 마크다운, preservation, 원문결, 원문추출, local-ocr]
 ---
@@ -17,6 +17,8 @@ metadata:
 사용자가 머신러닝까지 금지하면 `--ocr off`를 적용한다. 외부 AI 서비스 없이 이미지 글자를 읽으려는 요청은 로컬 OCR 범위로 처리하고 사용 여부를 밝힌다.
 
 ## 실행
+
+엔진 설치가 필요한 환경에서는 [공개 저장소의 설치 안내](https://github.com/aitoolji9-ai/source-preserve-md#설치와-실행)를 따른다. macOS의 실제 설치와 Linux의 기본 추출·스킬 경로를 검증했으며 Apple Vision OCR은 macOS 전용이다. 스킬 파일만 복사하는 것으로 엔진·선택 런타임 설치가 완료되지는 않는다.
 
 1. 사용자 입력의 파일/URL·저장 위치·전체/부분 범위를 확인한다. 원본을 수정하지 않고 결과는 존재하지 않는 새 폴더에 만든다. 출력 위치가 없으면 프로그램 `outputs/` 아래 충돌 없는 새 이름을 사용한다.
 2. 현재 지원은 이 스킬 폴더의 `scripts/run.py formats`로 조회한다. 프로그램이 없으면 `SOURCE_PRESERVE_MD_ROOT`로 설치 위치를 지정하도록 안내한다. 자동 외부 설치·계정 연결·로그인 가져오기를 수행하지 않는다.

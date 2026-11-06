@@ -35,7 +35,7 @@
   },
   "wheel_workflows": {
     "passed": 17,
-    "note": "Initial wheel installation passed; final wheel is reinstalled and checked by the same script before delivery."
+    "note": "Public HTTPS clone -> newly built wheel -> separate environment; 17 local macOS workflows passed."
   },
   "browser_ui": {
     "html_upload_validate_zip": true,
@@ -45,9 +45,21 @@
   },
   "remote_ci": {
     "configured": true,
-    "executed": false
+    "executed": true,
+    "conclusion": "success",
+    "verified_commit": "1b9f4a4c3ee586141a0d9212f54e9b52045d64aa",
+    "url": "https://github.com/aitoolji9-ai/source-preserve-md/actions/runs/42227051902",
+    "jobs": [
+      "test (ubuntu-latest)",
+      "test (macos-latest)",
+      "browser",
+      "dependencies"
+    ]
   },
-  "other_os_runtime_verified": false,
+  "other_os_runtime_verified": {
+    "linux": "Ubuntu CI: direct extraction, skill integration, package build/install and Chromium boundary test",
+    "windows": false
+  },
   "source_sha256": {
     "src/source_preserve_md/markdown_assets.py": "a5f44a20196c296f7f92d8dcf1f357aa488319cb02b66076c0e773547eea5fcb",
     "src/source_preserve_md/server.py": "ad81a92a969a1d07ec54f7705eff33d94ec56797114217a601e031cd82dc4544",
