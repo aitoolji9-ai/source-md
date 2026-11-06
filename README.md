@@ -11,6 +11,8 @@ MD만으로 모든 글꼴·배치·도형·대화형 동작을 복제할 수는 
 우선 검증 환경은 **macOS, Python 3.12**입니다. [uv](https://docs.astral.sh/uv/getting-started/installation/)를 설치하고 이 저장소를 내려받은 폴더에서 실행합니다. 최초 설치는 네트워크가 필요합니다.
 
 ```sh
+git clone https://github.com/aitoolji9-ai/source-preserve-md.git
+cd source-preserve-md
 uv sync --frozen --python 3.12
 uv run --frozen preserve-md doctor
 uv run --frozen preserve-md serve --open
