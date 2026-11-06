@@ -2,13 +2,37 @@
 
 파일·공개 웹페이지의 원문, 순서, 표, 코드, 이미지와 출처를 Markdown으로 추출하는 로컬 프로그램입니다. 사용자 화면·CLI·Codex/Hermes 스킬이 같은 엔진을 사용합니다. 버전 **0.8.0**.
 
+[프로그램 다운로드](https://github.com/aitoolji9-ai/source-preserve-md/releases/tag/v0.8.0) · [설치·사용 검증 결과](docs/PUBLISHED_VERIFICATION.md) · [스킬 설치](#스킬로-설치)
+
+PDF·한글·워드·엑셀·파워포인트·웹페이지를 다음 작업에 재사용하려는 사람에게 적합합니다. 프로그램 화면으로 직접 사용하거나, 설치한 스킬을 Codex·Hermes에서 호출할 수 있습니다.
+
 외부 생성형 AI API를 호출하지 않습니다. 이미지 문자는 macOS Apple Vision의 로컬 OCR로 읽습니다. OCR 자체는 머신러닝을 사용하며, `--ocr off`로 끌 수 있습니다. 요약·번역으로 원문을 대체하지 않습니다.
 
 MD만으로 모든 글꼴·배치·도형·대화형 동작을 복제할 수는 없습니다. 원본 바이트와 SHA-256, 구조 JSON, 이미지/패키지/XML, 원본 대조 화면을 함께 보관합니다. 자동 결과의 `partial`과 저장 무결성 통과는 의미·시각 정확도 인증과 구분합니다.
 
 ## 설치와 실행
 
-우선 검증 환경은 **macOS, Python 3.12**입니다. [uv](https://docs.astral.sh/uv/getting-started/installation/)를 설치하고 이 저장소를 내려받은 폴더에서 실행합니다. 최초 설치는 네트워크가 필요합니다.
+아래는 **처음 설치하는 macOS 사용자 기준**입니다. macOS의 실제 설치·OCR 사용과 Ubuntu의 기본 추출·스킬·브라우저 수집을 검증했습니다. 이미지 글자 OCR은 macOS 전용입니다. 최초 설치에는 네트워크가 필요합니다.
+
+### 1. 처음 한 번 준비하기
+
+**응용 프로그램 → 유틸리티 → 터미널**을 엽니다. Git과 개발 도구가 없다면 다음 명령을 실행하고 설치 창의 안내를 마칩니다. 이미 설치했다면 건너뜁니다.
+
+```sh
+xcode-select --install
+```
+
+uv가 없다면 [uv 공식 설치 명령](https://docs.astral.sh/uv/getting-started/installation/)을 실행합니다.
+
+```sh
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+설치 후 **터미널을 닫았다가 새로 열어** 다음 단계로 진행합니다. Git과 uv가 이미 준비된 환경은 바로 다음 단계부터 시작하면 됩니다.
+
+### 2. 프로그램 설치하고 열기
+
+새로 설치할 위치에서 아래 명령을 한 줄씩 실행합니다. `uv sync`가 지정한 Python과 필요한 패키지를 준비합니다.
 
 ```sh
 git clone https://github.com/aitoolji9-ai/source-preserve-md.git
@@ -18,18 +42,51 @@ uv run --frozen preserve-md doctor
 uv run --frozen preserve-md serve --open
 ```
 
-이후에는 `시작.command`를 더블클릭해도 됩니다. 기본 화면은 `http://127.0.0.1:8766`입니다. 종료는 실행한 터미널에서 `Ctrl+C`입니다. 서버는 로컬용입니다.
+`doctor`는 필요한 도구의 준비 상태를 보여주며, 마지막 명령이 프로그램 화면을 엽니다. 자동으로 열리지 않으면 브라우저에서 `http://127.0.0.1:8766`에 접속합니다.
 
-선택 기능의 준비:
+다음부터는 설치 폴더의 **`시작.command`를 더블클릭**하면 됩니다. 터미널에서 다시 실행하려면 설치 폴더로 이동한 뒤 다음을 실행합니다.
 
-- 이미지 OCR: macOS의 Xcode Command Line Tools (`xcode-select --install`). 첫 인식 시 Swift 도구를 로컬 컴파일합니다.
-- 구형 DOC/XLS/PPT: LibreOffice 설치. 자동으로 찾지 못하면 `SOURCE_PRESERVE_SOFFICE`에 실행 파일 경로를 지정합니다.
-- 동적 URL: Chrome을 설치하거나 `uv run --frozen python -m playwright install chromium`을 실행합니다. 로그인 정보는 가져오지 않습니다.
-- 다른 운영체제의 직접 추출은 의존성·형식에 따라 사용할 수 있지만 Apple Vision OCR은 macOS 전용입니다. 다른 OS에서의 실제 검증 상태는 [검증 문서](docs/VERIFICATION.md)를 확인하세요.
+```sh
+uv run --frozen preserve-md serve --open
+```
+
+프로그램을 사용하는 동안 실행한 터미널을 유지합니다. 종료하려면 그 터미널에서 `Ctrl+C`를 누릅니다. 이 서버는 로컬 사용자용입니다.
+
+### ZIP으로 받는 경우
+
+[다운로드 페이지](https://github.com/aitoolji9-ai/source-preserve-md/releases/tag/v0.8.0)에서 **`source-preserve-md-0.8.0-repository.zip`**을 받아 압축을 풉니다. 터미널에서 압축을 푼 프로젝트 폴더로 이동한 뒤 위 명령 중 `uv sync`부터 실행하면 됩니다. `.whl`은 Python용 설치 패키지이며, ZIP과 같은 전체 소스 폴더가 아닙니다.
+
+### 추가 기능 준비
+
+| 사용할 기능 | 필요한 준비 |
+|---|---|
+| 이미지·스캔 문서 글자 OCR | macOS와 Xcode Command Line Tools. 첫 인식 시 포함된 Swift 소스를 로컬 컴파일합니다. |
+| 구형 DOC·XLS·PPT | [LibreOffice](https://www.libreoffice.org/download/download-libreoffice/) 설치. 자동으로 찾지 못하면 `SOURCE_PRESERVE_SOFFICE`에 실행 파일 경로를 지정합니다. |
+| 동적 웹페이지·탭 수집 | Chrome 설치 또는 아래 Chromium 설치 명령 |
+
+```sh
+uv run --frozen python -m playwright install chromium
+```
+
+다른 운영체제의 실제 검증 범위는 [검증 문서](docs/VERIFICATION.md)를 확인하세요. 개인 브라우저의 로그인 정보는 가져오지 않습니다.
 
 ## 사용
 
-파일을 올리거나 공개 URL 한 개를 입력합니다. 동적 수집은 표준/일부 비표준 탭·프레임·스크롤 변화를 자동 수집합니다. 전체 사이트를 크롤링하지 않습니다. 무한 목록은 상한에서 멈추고 부분 결과로 보고합니다. 새 출력 폴더만 사용하며 원본을 덮어쓰지 않습니다.
+### 화면에서 사용하기
+
+1. **파일** 탭에서 파일을 선택하거나 끌어다 놓습니다. 웹페이지는 **웹페이지 URL** 탭에 공개 주소를 입력합니다.
+2. **추출 옵션**을 확인합니다. 이미지·스캔 문서는 **이미지 속 글자도 로컬 OCR로 추출**, 탭·지연 로딩 웹페이지는 **브라우저로 로딩한 뒤 수집**과 **탭 자동 수집**을 사용합니다.
+3. **추출 시작**을 누릅니다.
+4. **읽기 화면**, **Markdown 원문**, **검증 보고서**에서 결과를 확인합니다.
+5. **MD 받기** 또는 **전체 묶음 받기**로 저장합니다. 이미지·원본·출처까지 재사용하려면 **전체 묶음**을 권장합니다.
+
+이미지 글자가 잘못 읽혔다면 **원본 대조·OCR 교정**에서 원본과 대조해 수정합니다. 변경 항목의 JSON을 내려받은 뒤 프로그램의 **교정 JSON 적용**으로 새 묶음을 만듭니다. 원본과 이전 인식은 보존합니다.
+
+입력 URL 한 페이지의 표준/일부 비표준 탭·프레임·스크롤 변화를 수집합니다. 전체 사이트를 크롤링하지 않습니다. 무한 목록은 상한에서 멈추고 부분 결과로 보고합니다. 새 출력 폴더만 사용하며 원본을 덮어쓰지 않습니다.
+
+### 터미널에서 사용하기
+
+프로젝트 폴더에서 실행합니다. `/경로/문서.pdf`와 결과 폴더 이름은 실제 경로로 바꿉니다.
 
 ```sh
 uv run --frozen --offline preserve-md convert '/경로/문서.pdf' --out outputs/새_문서
@@ -63,14 +120,35 @@ uv run --frozen --offline preserve-md correct 기존_묶음 --corrections ocr-co
 
 ## 스킬로 설치
 
-엔진을 설치한 후 호스트가 읽는 **새 스킬 폴더**를 지정합니다. 예를 들어 Codex는 다음과 같습니다.
+**프로그램을 먼저 설치한 뒤**, 터미널에서 `source-preserve-md` 프로젝트 폴더로 이동합니다. 사용하는 도구에 맞는 명령을 실행합니다. Codex·Hermes 자체 설치는 별도입니다.
+
+### Codex
 
 ```sh
 uv run --frozen preserve-md install-skill --target ~/.codex/skills/source-preserve-md
 python3 ~/.codex/skills/source-preserve-md/scripts/run.py doctor
 ```
 
-Hermes도 해당 환경의 스킬 폴더를 `--target`으로 지정합니다. 같은 `SKILL.md`와 실행기가 설치됩니다. 호출명은 **“마크다운 추출 스킬로 이 파일을 추출해줘”**입니다. 기존 스킬은 덮어쓰지 않습니다. 스킬 대화에 AI가 참여하더라도 변환 엔진은 생성형 모델을 호출하지 않습니다.
+### Hermes
+
+기본 환경의 스킬 폴더를 사용하는 예입니다.
+
+```sh
+uv run --frozen preserve-md install-skill --target ~/.hermes/skills/source-preserve-md
+python3 ~/.hermes/skills/source-preserve-md/scripts/run.py doctor
+```
+
+별도 프로필을 사용한다면 `--target`을 해당 프로필의 실제 스킬 폴더로 바꿉니다. 기본 스킬 위치와 프로필 동작은 [Hermes 공식 안내](https://hermes-agent.nousresearch.com/docs/user-guide/features/skills/)를 참고하세요.
+
+### 스킬 사용 예시
+
+설치한 호스트의 스킬 목록에서 `source-preserve-md`를 확인하고 다음처럼 요청합니다.
+
+> 마크다운 추출 스킬로 이 PDF를 원문과 표 구조를 보존해서 추출해줘.
+
+> 마크다운 추출 스킬로 이 URL의 동적 탭까지 수집해줘.
+
+두 호스트 모두 같은 `SKILL.md`와 엔진 실행기를 사용합니다. **기존 스킬 폴더나 심볼릭 링크는 덮어쓰지 않습니다.** 이미 존재한다는 오류가 나오면 기존 설치를 확인하세요. 시험용 설치는 호스트가 읽는 스킬 폴더 밖의 새로운 폴더를 `--target`으로 지정해 기존 설치와 구분할 수 있습니다. 스킬 대화에 AI가 참여하더라도 변환 엔진은 생성형 모델을 호출하지 않습니다.
 
 체크아웃 안의 `skills/source-preserve-md`를 직접 사용할 수도 있습니다. 설치본의 `.engine.json`은 해당 컴퓨터의 Python 연결 정보이므로 공유하지 않습니다. 환경을 옮겼다면 `install-skill`로 다시 연결합니다. [공유·설치 상세](docs/SHARING.md)
 
