@@ -1,0 +1,844 @@
+{
+  "url": "https://huggingface.co/datasets/jbaudanza/korean-handwriting-strokes/resolve/a821f48585613e6c24016315c0dc1eb6498a4f6a/data/recordings.parquet",
+  "sha256": "04756602a712b506c8d842f3507e4e374c5341e4387fc7c5a4285580d01b99fb",
+  "size": 26875882,
+  "dataset": "jbaudanza/korean-handwriting-strokes",
+  "revision": "a821f48585613e6c24016315c0dc1eb6498a4f6a",
+  "attribution": "Korean Handwriting Strokes by Jonathan Baudanza (hangul.ink), handwriting by Jo YW, CC BY-SA 4.0; transcripts partly from Korean Wikipedia (CC BY-SA 4.0).",
+  "rendering": "Actual pen strokes; full min/max bounds, uniform scale to96px height and max12000px inner width,32px margins,2px black strokes; pen-up gaps preserved; no font synthesis or text-dependent cleanup",
+  "writers": 1,
+  "cases": [
+    {
+      "id": "strokes-0000",
+      "sha256": "b5759232e250546e54f31116e73483b4c11a8892a913c2ed7e20211a86aaa9c3",
+      "source_offset": 0,
+      "source_recording_id": 4,
+      "source_writer_id": 1,
+      "image_size": [
+        1773,
+        160
+      ],
+      "reference_sha256": "7e68057c68c30993c9896342991bb30896542687c486da24806b3c7ae09a9863",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-0137",
+      "sha256": "e8de1d948b3277219fa2b3474d72d4055ae8c1414ba779a50550bea7ea414089",
+      "source_offset": 137,
+      "source_recording_id": 141,
+      "source_writer_id": 1,
+      "image_size": [
+        1568,
+        160
+      ],
+      "reference_sha256": "247faf9007cc3786a53e599eaed12a4656bf34b4c47fec58623530ad1f521c23",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-0274",
+      "sha256": "ec20e2a268767def3caf31937d744255dc5ac44b4f34d0128cffff02afbae2bb",
+      "source_offset": 274,
+      "source_recording_id": 278,
+      "source_writer_id": 1,
+      "image_size": [
+        930,
+        160
+      ],
+      "reference_sha256": "ce632ab6b46cce19c3640e7c886afb01fa50d70267cdb50f6be11ab36d56e740",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-0411",
+      "sha256": "c3ce98540676fbb663eeedb71cc61e9f1d90f7135e1c2ffdf4edbaeb036f19ba",
+      "source_offset": 411,
+      "source_recording_id": 415,
+      "source_writer_id": 1,
+      "image_size": [
+        1462,
+        160
+      ],
+      "reference_sha256": "9b1f4d69be9d9e4609c15d3d1af7531dcdbb148a50bcde602f2b9d4e250760f9",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-0548",
+      "sha256": "6b87dd3d07d3d580a20d7a12f38fe0b38c11efc18e5ad09281c4b792164cbdf1",
+      "source_offset": 548,
+      "source_recording_id": 552,
+      "source_writer_id": 1,
+      "image_size": [
+        1400,
+        160
+      ],
+      "reference_sha256": "d3955d377d3120675b14414c2acaad93280eaf8870da0c98b72d156d3759ebd1",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-0685",
+      "sha256": "e54ff7f0adc4eba09af5e26812446490b97a201a456eb0cb701d41f326247672",
+      "source_offset": 685,
+      "source_recording_id": 689,
+      "source_writer_id": 1,
+      "image_size": [
+        4358,
+        160
+      ],
+      "reference_sha256": "98363c3b6673f3eb11a2f0aa059f98fe66f753c30f034236001f530a092df83d",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-0822",
+      "sha256": "9513dd23e3f8cad227e1d572e6d38f567a77df23c3beac8592f2c525143ea369",
+      "source_offset": 822,
+      "source_recording_id": 826,
+      "source_writer_id": 1,
+      "image_size": [
+        768,
+        160
+      ],
+      "reference_sha256": "ad6f47c57bdde1a8e80cf8d8e8cefd0444555ffa268b5ca901a57cc011d080ca",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-0959",
+      "sha256": "d6630c0b210cb1e60d38623d11230488f6d876662ad797e3ddefa92cd12a1c62",
+      "source_offset": 959,
+      "source_recording_id": 963,
+      "source_writer_id": 1,
+      "image_size": [
+        969,
+        160
+      ],
+      "reference_sha256": "059c4ce7b754d2581769eceee31b48441de2922ed56c6e0929fe6d3d7b0a7735",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-1096",
+      "sha256": "ba98119c3cc4b07d3fbf10b2204dfbf5cd43d44ff2080a89ceae3d112e68d191",
+      "source_offset": 1096,
+      "source_recording_id": 1100,
+      "source_writer_id": 1,
+      "image_size": [
+        320,
+        160
+      ],
+      "reference_sha256": "9ca2e7d8714b2b3c62c564eec27b79adb84b0b681674a33aaed163de6307d5cc",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-1233",
+      "sha256": "d09ddf7f02e79bffc4be61923a8e8fc48182f5fb1a940f99fdc2106647ce5e6f",
+      "source_offset": 1233,
+      "source_recording_id": 1270,
+      "source_writer_id": 1,
+      "image_size": [
+        861,
+        160
+      ],
+      "reference_sha256": "4df6db08e4ff3d1060397dbbeb0601ec23901faad8d1b0e332c4e8840bf1b148",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-1370",
+      "sha256": "7b2200537a78760041ad131c19fa1e7059316c558f205c285c61389a7a1b81bb",
+      "source_offset": 1370,
+      "source_recording_id": 1437,
+      "source_writer_id": 1,
+      "image_size": [
+        1429,
+        160
+      ],
+      "reference_sha256": "45e4ce5c201d56369bbd9da1d90a1b9801f30abaa4aa2e5f875de15d6fc0e045",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-1507",
+      "sha256": "ad4f8a54058ffb750c7b71443d78b81df85f78d3b5883030c0d17926c28589a1",
+      "source_offset": 1507,
+      "source_recording_id": 1574,
+      "source_writer_id": 1,
+      "image_size": [
+        305,
+        160
+      ],
+      "reference_sha256": "bf9b27a18c578cfe2cd8735bd07801482faa9a25afa9e0f6449bf3b77521c9f2",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-1644",
+      "sha256": "7658d7b75edc8c9a33d0f6f6fd8ab827d3bb11601ffe4b5194f3f69bc700e45b",
+      "source_offset": 1644,
+      "source_recording_id": 1711,
+      "source_writer_id": 1,
+      "image_size": [
+        435,
+        160
+      ],
+      "reference_sha256": "d0a6ed89795e1eeb50929fba8fde8413b83afbe046d36a6c42e59a2229116229",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-1781",
+      "sha256": "6087a6dbe95e090add0373a0207dcd1958a56e5372cbecd6853abfb854f95a99",
+      "source_offset": 1781,
+      "source_recording_id": 1912,
+      "source_writer_id": 1,
+      "image_size": [
+        836,
+        160
+      ],
+      "reference_sha256": "a99dc230712ec493108b5b7b4d8ab6827c99de69e40ad94d79ccde585af44388",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-1918",
+      "sha256": "52dbaf75920937c7118d7f8fd89ec10ec69b641a57c437e9cf37f5856e1e6b3a",
+      "source_offset": 1918,
+      "source_recording_id": 2049,
+      "source_writer_id": 1,
+      "image_size": [
+        851,
+        160
+      ],
+      "reference_sha256": "91e2567ec607c4be442e9b6c0e1b9d4132c630362a5be9c3f09f4baab0f874c4",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-2055",
+      "sha256": "b96f893bdbe42674e6f9128907d9f064b0efc2d7d11c2bfd2144fd684a756579",
+      "source_offset": 2055,
+      "source_recording_id": 2400,
+      "source_writer_id": 1,
+      "image_size": [
+        977,
+        160
+      ],
+      "reference_sha256": "a9b5ecb53b86021ca9dc2f9d8fd7ecd870197402e12095904a756e1fcec5fd8b",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-2192",
+      "sha256": "7e8d20afbad3cf17a6d5e5c93a6bed9e20ede7ff672f6fb4d88915fd4b8f8778",
+      "source_offset": 2192,
+      "source_recording_id": 2537,
+      "source_writer_id": 1,
+      "image_size": [
+        820,
+        160
+      ],
+      "reference_sha256": "14df2677427df99a183f2dc9d8a1ffc8557ad4615eaafc13fb4ebc19507f2bb8",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-2329",
+      "sha256": "e5c2185ff738ca1728782f715b7626331280c4dffeddc96e2b15e2ea82495cdd",
+      "source_offset": 2329,
+      "source_recording_id": 2674,
+      "source_writer_id": 1,
+      "image_size": [
+        688,
+        160
+      ],
+      "reference_sha256": "8f87453008c627ed9b8004b81c00c81f0ebe1e90ea2da5fcf98ddac3f4d2cff0",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-2466",
+      "sha256": "0628831577c76b86b4db102c9ca12238b40f3edc6956ff995457d3063e1abb13",
+      "source_offset": 2466,
+      "source_recording_id": 2811,
+      "source_writer_id": 1,
+      "image_size": [
+        1503,
+        160
+      ],
+      "reference_sha256": "83c70e144cd406a9a45174fe01d23a353bde4cb3c4d3b0a0fd79d0da507439e2",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-2603",
+      "sha256": "32d57ba76d2652535f90077fb4385e2a7737e28441f0159a1e08ce687a126e2f",
+      "source_offset": 2603,
+      "source_recording_id": 2948,
+      "source_writer_id": 1,
+      "image_size": [
+        1290,
+        160
+      ],
+      "reference_sha256": "7fa84c1d5b214a7b78cba88703ce4983fb648834ea17ead472ca7ce48ae13cf5",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-2740",
+      "sha256": "100258061086a4d7c1e54abaa91c7c8fa04d34b2b0f2213bec8894847492fa16",
+      "source_offset": 2740,
+      "source_recording_id": 3085,
+      "source_writer_id": 1,
+      "image_size": [
+        1446,
+        160
+      ],
+      "reference_sha256": "7019c4e117d93b682b6bbbe8d481a3c49ae3084fde1c252f16123e4742e37dee",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-2877",
+      "sha256": "d22e35cbfe4e769a3733742ebf1efcbb696954fdb3309f256687b8c10b570c3e",
+      "source_offset": 2877,
+      "source_recording_id": 3222,
+      "source_writer_id": 1,
+      "image_size": [
+        1279,
+        160
+      ],
+      "reference_sha256": "a624e8bb1a96b9c4a4d40cba7d02072cbb19f05ebe89be2603bfdbe388a76f78",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-3014",
+      "sha256": "7263e0fa2190853639f82edc6c6edb6aab8ed12b2db28b1c54b79ec5a48706c4",
+      "source_offset": 3014,
+      "source_recording_id": 3359,
+      "source_writer_id": 1,
+      "image_size": [
+        1120,
+        160
+      ],
+      "reference_sha256": "adddba0220cd143b1fd29bfced39c3f183485a1ff0bd1f25ab17941746433f0e",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-3151",
+      "sha256": "419900bc7732fdf7a25345bac358fab268cfcc6fd51ad7b2738fea18a550a778",
+      "source_offset": 3151,
+      "source_recording_id": 3496,
+      "source_writer_id": 1,
+      "image_size": [
+        1130,
+        160
+      ],
+      "reference_sha256": "445c521c9725d49a04e486a073e39dd4194bc368ecfff47dd570bacc504f8dc4",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-3288",
+      "sha256": "c343d5c8b7c9517c0c6374f9d93c1dbfc4e9d5e5b68a7c17c87dd103611a339f",
+      "source_offset": 3288,
+      "source_recording_id": 3633,
+      "source_writer_id": 1,
+      "image_size": [
+        1178,
+        160
+      ],
+      "reference_sha256": "7323f869dc48bf33815d862cb1ba7e4c46b3cf834086b294f19329d1fe590037",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-3425",
+      "sha256": "f79f267ca5779a64bcc8954d0d490a88fa86be6ef1624a52105797e395461fb4",
+      "source_offset": 3425,
+      "source_recording_id": 3770,
+      "source_writer_id": 1,
+      "image_size": [
+        1332,
+        160
+      ],
+      "reference_sha256": "3e054ce8a7859769d02012df6a233912a4de53d4287614654b48caffb4ae800c",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-3562",
+      "sha256": "c0a7a9a8db14e5374f1deaf17b4465e21d815e12fbceec68145529ba63c714a8",
+      "source_offset": 3562,
+      "source_recording_id": 3907,
+      "source_writer_id": 1,
+      "image_size": [
+        1388,
+        160
+      ],
+      "reference_sha256": "24d594a5c7295c3093381a259599831449e59307d748d89a572d5a3f46e62a4c",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-3699",
+      "sha256": "51042cb1d102e8672473c1fb4ae22cefcb0f9f1974960177ad1e5b4e13a044e1",
+      "source_offset": 3699,
+      "source_recording_id": 4044,
+      "source_writer_id": 1,
+      "image_size": [
+        756,
+        160
+      ],
+      "reference_sha256": "944fa5bf79f4c98c73564d96f4c7e1e536eb77ba8596cedf244f2e0e59f19dca",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-3836",
+      "sha256": "91642384f32b21367fa7bcace983c91a56a21d14a7b1970c7687c4522dcd8d60",
+      "source_offset": 3836,
+      "source_recording_id": 4181,
+      "source_writer_id": 1,
+      "image_size": [
+        872,
+        160
+      ],
+      "reference_sha256": "992e7e82f4579d528167bc3387921423465fe866d9e8faff6dfa1357154415a7",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-3973",
+      "sha256": "ced1157a2a432c89261e59b2130521918ebb8bf12467f587c4d04db4f58f3cd4",
+      "source_offset": 3973,
+      "source_recording_id": 4318,
+      "source_writer_id": 1,
+      "image_size": [
+        934,
+        160
+      ],
+      "reference_sha256": "abb8f02a9fe4372927c2ce2e4d143da4c7b2aef07599349f33c9b77311e9863f",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-4110",
+      "sha256": "397b9d57bf85bad937f37b7c37b6bb57c94892bfc96f8b154967223ee4acd0f3",
+      "source_offset": 4110,
+      "source_recording_id": 4455,
+      "source_writer_id": 1,
+      "image_size": [
+        753,
+        160
+      ],
+      "reference_sha256": "4b24a26fcae7a63e97dbf1cb4b29cd70bcac60975c266eb48b4ad700a11eaedf",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-4247",
+      "sha256": "d25c8b078dfc67ecf27706d8642e59534e9fc72473565dfee1207977643916bf",
+      "source_offset": 4247,
+      "source_recording_id": 4592,
+      "source_writer_id": 1,
+      "image_size": [
+        710,
+        160
+      ],
+      "reference_sha256": "e8db117c14c643d6371d455ed3241dc40e3c1b5b88877c8022b308c504252a30",
+      "cohort": "a"
+    },
+    {
+      "id": "strokes-0068",
+      "sha256": "576bc25c0138f2c47885bbc8cf453a792b0532ef9e1a348e5b69079c6dd00a01",
+      "source_offset": 68,
+      "source_recording_id": 72,
+      "source_writer_id": 1,
+      "image_size": [
+        1177,
+        160
+      ],
+      "reference_sha256": "f6ad72f75553e160e28cfb8ea027d63e9c9acdfd279636183bfa6d452eb4bf55",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-0205",
+      "sha256": "9e6babd9b059b7e990b7a0e6b48d53fe8a16180e41ee95343f7f6ae7a1e36575",
+      "source_offset": 205,
+      "source_recording_id": 209,
+      "source_writer_id": 1,
+      "image_size": [
+        1547,
+        160
+      ],
+      "reference_sha256": "4b73e10eba1ba0dc09b73fa6bddcb0b2b5aa17b3e765f995da835638a62c1d9d",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-0342",
+      "sha256": "1c4adf0b562f695b357095ac4075ab11ce3a42021be00ac4ae8124735e63c8fc",
+      "source_offset": 342,
+      "source_recording_id": 346,
+      "source_writer_id": 1,
+      "image_size": [
+        944,
+        160
+      ],
+      "reference_sha256": "ae325a4c334c260c0f51b28a439a2ac479da854dbbe001a4d70c79c7a3283e98",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-0479",
+      "sha256": "d7b43840a021af89a9a5723d34eec3c2c28de6b026af1a4ac74e13df43a9f879",
+      "source_offset": 479,
+      "source_recording_id": 483,
+      "source_writer_id": 1,
+      "image_size": [
+        703,
+        160
+      ],
+      "reference_sha256": "5713ef6fc3f33bac1d962e96a719fe2432dd05a1851ff031951d73c5d32345a4",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-0616",
+      "sha256": "75b5409d364020dd86fb362b02fe48e129c043ea712cc1bb9a07febb5f407565",
+      "source_offset": 616,
+      "source_recording_id": 620,
+      "source_writer_id": 1,
+      "image_size": [
+        1408,
+        160
+      ],
+      "reference_sha256": "d6980372ef74a106fc72e314c113702610e77d4e371f2a5e80bd176cdacf9c8d",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-0753",
+      "sha256": "2ed82879c7afc763a8807614d29aa03ad7833e00eea3c4ffc3c5a1b097b24131",
+      "source_offset": 753,
+      "source_recording_id": 757,
+      "source_writer_id": 1,
+      "image_size": [
+        1153,
+        160
+      ],
+      "reference_sha256": "6a3f47d81496bcca577f17d70446cd6ecc7160f8758969152f7668bd6cc2814a",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-0890",
+      "sha256": "202f712c6cefac84559ad87e2928d8075d83164ff266829e3bdee315eeeac32c",
+      "source_offset": 890,
+      "source_recording_id": 894,
+      "source_writer_id": 1,
+      "image_size": [
+        1467,
+        160
+      ],
+      "reference_sha256": "de02233e7461adc1f6b27d5b3d3af3ef8505fc360d945526a11c2c6739d72061",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-1027",
+      "sha256": "e830f9e70b93f25acee806d8774b2a0997602ee568a1ab08951f54d9fd72452b",
+      "source_offset": 1027,
+      "source_recording_id": 1031,
+      "source_writer_id": 1,
+      "image_size": [
+        846,
+        161
+      ],
+      "reference_sha256": "c72bcd1e23423893a588cea3928ce3fc4ef0e545473515e43e7ca93fab793b6d",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-1164",
+      "sha256": "d0e1e862f6f02a87f7ffe24532101efcdd0e30c968a5bd02266b0528532a8171",
+      "source_offset": 1164,
+      "source_recording_id": 1201,
+      "source_writer_id": 1,
+      "image_size": [
+        657,
+        160
+      ],
+      "reference_sha256": "da4a39deb365a94527f5de84ed57ace9bef78d111a2241facbd8152b6b8c3925",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-1301",
+      "sha256": "bfe6610328d5bf9411ac17b05da2b874407e1657dbd0f86a36faa3d31a8f250b",
+      "source_offset": 1301,
+      "source_recording_id": 1368,
+      "source_writer_id": 1,
+      "image_size": [
+        1627,
+        160
+      ],
+      "reference_sha256": "44855446cc88b319feaac59fc42fc70c22282d7898a3d8675ae87a9503e1e337",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-1438",
+      "sha256": "e318f7f9e502b1282e0ffd5fe0cf6350453063b2d70cff96d8c3dcea7c99bcf8",
+      "source_offset": 1438,
+      "source_recording_id": 1505,
+      "source_writer_id": 1,
+      "image_size": [
+        1089,
+        161
+      ],
+      "reference_sha256": "17ca8ef6a8fd9f117cfd61af8d8fa82cffc0d70e4b3e90e85b2d10e8511d9194",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-1575",
+      "sha256": "70fe5ad7028334827cd4476878ead7c21bf85863429e2f615ee11d78911ef350",
+      "source_offset": 1575,
+      "source_recording_id": 1642,
+      "source_writer_id": 1,
+      "image_size": [
+        755,
+        160
+      ],
+      "reference_sha256": "0e4cd1c6348bd9f91131692e45bf04c4f83a8444de8baaa5f0cc6ccb7a71f736",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-1712",
+      "sha256": "769d345da5eb3ae82b7308e49519268e442aad28f1c56b9b4c28427935fec70f",
+      "source_offset": 1712,
+      "source_recording_id": 1843,
+      "source_writer_id": 1,
+      "image_size": [
+        1035,
+        160
+      ],
+      "reference_sha256": "6cd46a528948af8061b33e3b662e454778575cdda270a0622b4b048b42266797",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-1849",
+      "sha256": "30bfc2eef26a89e45da343952a438a4d291769335d1baa9a5ed54b7ff59c0e35",
+      "source_offset": 1849,
+      "source_recording_id": 1980,
+      "source_writer_id": 1,
+      "image_size": [
+        1030,
+        160
+      ],
+      "reference_sha256": "c849e36261a7510da7f87f26f25174431ed65674e9df4397031cfafd306d9812",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-1986",
+      "sha256": "57d42fb4099920c3d0b80be28e7e30124f589412952664c5cbac3ce1f84cf829",
+      "source_offset": 1986,
+      "source_recording_id": 2117,
+      "source_writer_id": 1,
+      "image_size": [
+        533,
+        160
+      ],
+      "reference_sha256": "bf96051fb5b6d9761ecaf9e58911faba586cd8479590e175244b1a3636a95e5f",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-2123",
+      "sha256": "d30167795f2dcd0e858b0a188ca38b89b8ec21567ce2240ffd36d66fffcbc90d",
+      "source_offset": 2123,
+      "source_recording_id": 2468,
+      "source_writer_id": 1,
+      "image_size": [
+        937,
+        160
+      ],
+      "reference_sha256": "5779b8808257ed81085baca7d0380c251279669720121cef63c84fb01edd1883",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-2260",
+      "sha256": "5f47912f5fd70fde8f58fe33f059bfc63717578846f01bee82da2868ce8e89c9",
+      "source_offset": 2260,
+      "source_recording_id": 2605,
+      "source_writer_id": 1,
+      "image_size": [
+        819,
+        160
+      ],
+      "reference_sha256": "53f0b4ab22d9c5a119446bc9355d5490d2339b1d73575a237fd5a8e4bed9f4de",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-2397",
+      "sha256": "278d3c5bf85faf925a821afde963a04729a7d8af5e045c4ce4630394d86fd67e",
+      "source_offset": 2397,
+      "source_recording_id": 2742,
+      "source_writer_id": 1,
+      "image_size": [
+        963,
+        160
+      ],
+      "reference_sha256": "1bbf55460db76a328710adaca4da47b3544c08cbc6ac4d049bacd602170b2fa0",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-2534",
+      "sha256": "a2134a1cb9bcceaaec6b23c331997aa0d3f66e7b5fd573e40a7022aa9bbcd45e",
+      "source_offset": 2534,
+      "source_recording_id": 2879,
+      "source_writer_id": 1,
+      "image_size": [
+        906,
+        161
+      ],
+      "reference_sha256": "a6e39937cd804ee3b7a07b4431f825409540c3e81c550a585695157a2fc7cc5a",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-2671",
+      "sha256": "e5351bb7d7563d6499a028dcfbc9e9dfc5744c7f4d73b9cbed3430efebbaf4c0",
+      "source_offset": 2671,
+      "source_recording_id": 3016,
+      "source_writer_id": 1,
+      "image_size": [
+        716,
+        160
+      ],
+      "reference_sha256": "ef5ab3c77df7bcb5cf0a5fde44657ee10b2b52c94943faafe93db639853851ff",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-2808",
+      "sha256": "d7d5a69e95618c7eb1eece0e46834837398f55be7d4136a2cd175c1f6b19b3fd",
+      "source_offset": 2808,
+      "source_recording_id": 3153,
+      "source_writer_id": 1,
+      "image_size": [
+        1710,
+        160
+      ],
+      "reference_sha256": "9fa6805515ab3c2e9dcd2bc95bc33e3adf547c595751589e17a61c159e205b36",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-2945",
+      "sha256": "974f1c675cb10773ce3dcf99aa66def4b4dd6db0e92dae6b42958bdd171afded",
+      "source_offset": 2945,
+      "source_recording_id": 3290,
+      "source_writer_id": 1,
+      "image_size": [
+        707,
+        160
+      ],
+      "reference_sha256": "0837b69f13392c4e801946a26d9c2e78c304520c80a29c2844c1574e3f745ca1",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-3082",
+      "sha256": "98b1acf5c9cc8f6d858f058fe318c47c9a68ba8434f6da80e5561019d6390f03",
+      "source_offset": 3082,
+      "source_recording_id": 3427,
+      "source_writer_id": 1,
+      "image_size": [
+        803,
+        160
+      ],
+      "reference_sha256": "fd78b8819b805997699af4000b90abb1476dac92918240535a12039cffec4c6f",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-3219",
+      "sha256": "8ead0871f892ae14588367240e49049211c9cac2fdfeec5069a1ee1328ae0c82",
+      "source_offset": 3219,
+      "source_recording_id": 3564,
+      "source_writer_id": 1,
+      "image_size": [
+        562,
+        160
+      ],
+      "reference_sha256": "2c10cedb72e3afc947ae16fcd24260a2ab5361a1ae3544815ae9a3532cce0d70",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-3356",
+      "sha256": "de1c62fed3bc1fa09495b6eaf674e06afcf9949931c3349c1fa148460c00766c",
+      "source_offset": 3356,
+      "source_recording_id": 3701,
+      "source_writer_id": 1,
+      "image_size": [
+        1426,
+        161
+      ],
+      "reference_sha256": "1c44f01ea4c4bed0978fde40a1098692f474cbf0623324d2293bb3e1d96941fd",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-3493",
+      "sha256": "8783a60522607c28696d4f7a59b10b05bdfa20bfc909299332b3bd39268064f8",
+      "source_offset": 3493,
+      "source_recording_id": 3838,
+      "source_writer_id": 1,
+      "image_size": [
+        305,
+        160
+      ],
+      "reference_sha256": "406e70b268a27628abac05522dcea9765e2f456b15845744cdfd8b9984873024",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-3630",
+      "sha256": "6e72af1c8f79a48e6b6309633d9679b4ff69bed9915a5e1831fda1aa4adb445f",
+      "source_offset": 3630,
+      "source_recording_id": 3975,
+      "source_writer_id": 1,
+      "image_size": [
+        855,
+        160
+      ],
+      "reference_sha256": "99bff592211cca8b20867bde176c419dbe8ad15c97decf973cc3a8b53c6ab93f",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-3767",
+      "sha256": "6e54474c94af505504b4ead4773943ba47be211e1ff338f21cb61aa5f177d3a4",
+      "source_offset": 3767,
+      "source_recording_id": 4112,
+      "source_writer_id": 1,
+      "image_size": [
+        870,
+        161
+      ],
+      "reference_sha256": "b1a30e0ce0051fbda46a686dbac99e50ee4fb81b45f48a1b5ae37946fb547ada",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-3904",
+      "sha256": "dde9c452d476d8a813057536dd427a7c97f87022608edded8a4cfba92de0ac40",
+      "source_offset": 3904,
+      "source_recording_id": 4249,
+      "source_writer_id": 1,
+      "image_size": [
+        912,
+        160
+      ],
+      "reference_sha256": "34461bbd8256ea6bff099ca59371add589765df2c5559950229a6350bd65a3ac",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-4041",
+      "sha256": "5b48eae8a1444c4888b31b6dd5578425e1e3737692cba25ff121d0f273f0f3f2",
+      "source_offset": 4041,
+      "source_recording_id": 4386,
+      "source_writer_id": 1,
+      "image_size": [
+        913,
+        160
+      ],
+      "reference_sha256": "41ce4fe694ee76c134f162defb0c09cef6d5044091649316932a2ed4aeaf18d2",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-4178",
+      "sha256": "64f05638c28a165508777ebc88061678ef5076082912c5c00a9dcaaf3bfcf3d5",
+      "source_offset": 4178,
+      "source_recording_id": 4523,
+      "source_writer_id": 1,
+      "image_size": [
+        1014,
+        160
+      ],
+      "reference_sha256": "3acb391b5a30221baf0d37bd501135c745aea848bffc58d8227f347cfb454e0b",
+      "cohort": "b"
+    },
+    {
+      "id": "strokes-4315",
+      "sha256": "739e1f9b357b2e8dc51dfc978dd198eb2cd5f4281e315f4faa5189a3ade0732b",
+      "source_offset": 4315,
+      "source_recording_id": 4660,
+      "source_writer_id": 1,
+      "image_size": [
+        503,
+        160
+      ],
+      "reference_sha256": "ef5bc4780f7dda4c9d6522deda44a732e63030693f19bdd4d2e54fced5e89007",
+      "cohort": "b"
+    }
+  ]
+}

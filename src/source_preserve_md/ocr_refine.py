@@ -6,10 +6,14 @@ agreement rule, not an accuracy guarantee. Both candidates and originals remain.
 from __future__ import annotations
 
 import unicodedata
+import math
+import re
+import difflib
 from PIL import Image, ImageChops, ImageFilter, ImageOps
 
 from .html_extract import escape
 from .raster_layout import detect_tables, borderless_tables, order_blocks, table_markdown
+from .ocr_candidates import edit_distance
 
 
 def compact(value):
@@ -78,6 +82,85 @@ def _alternate(image):
     scale = min(2,3000/max(image.width,1),1200/max(image.height,1))
     crop = image.resize((max(1,round(image.width*scale)),max(1,round(image.height*scale))),Image.Resampling.BICUBIC)
     return ImageOps.expand(crop,border=24,fill='white')
+
+
+def _overlap(a, b):
+    x,y,w,h = a
+    xx,yy,ww,hh = b
+    intersection = max(0,min(x+w,xx+ww)-max(x,xx))*max(0,min(y+h,yy+hh)-max(y,yy))
+    return intersection/max(1e-9,w*h+ww*hh-intersection)
+
+
+def _context_candidate(image, observations, line, call, report):
+    """Use page context as corroboration, never as a dictionary-only override."""
+    source = compact(line['text'])
+    if not 5 <= len(source) <= 512 or not any('\uac00' <= c <= '\ud7a3' for c in source):
+        return None
+    context = report.setdefault('page_context', {'status':'not_requested', 'accuracy_verified':False})
+    if context['status'] == 'not_requested':
+        try:
+            context.update(status='completed', response=call(image,True))
+        except Exception as error:
+            context.update(status='failed', error=str(error))
+            report['issues'].append({'stage':'page_context','error':str(error)})
+    if context['status'] != 'completed':
+        return None
+    candidates = []
+    for candidate in context['response'].get('observations', []):
+        box = candidate.get('bbox', [])
+        if len(box) != 4 or not all(isinstance(v,(int,float)) and math.isfinite(v) for v in box):
+            continue
+        if box[2] <= 0 or box[3] <= 0 or _overlap(box,line['bbox']) < .7:
+            continue
+        if any(other is not line and not other.get('duplicate_native') and _overlap(box,other['bbox']) >= .3 for other in observations):
+            continue
+        text = compact(candidate.get('text',''))
+        if not text or len(text) > 512 or source in text:
+            continue
+        if re.findall(r'\d+',source) != re.findall(r'\d+',text):
+            continue
+        if edit_distance(source,text) > max(1,len(source)*.2):
+            continue
+        candidates.append(candidate)
+    # Two plausible same-position page lines are ambiguous, even when they agree.
+    return candidates[0] if len(candidates) == 1 else None
+
+
+def _korean_substitutions(source, candidate):
+    """Locate observed glyph substitutions; never insert/delete text or spaces."""
+    source,candidate = compact(source),compact(candidate)
+    if not candidate or len(candidate) > 512:
+        return set()
+    operations = difflib.SequenceMatcher(None,source,candidate,autojunk=False).get_opcodes()
+    substitutions = set()
+    for n,(kind,i,j,k,l) in enumerate(operations):
+        if kind != 'replace' or not 1 <= j-i <= 2 or j-i != l-k:
+            continue
+        if not all('\uac00' <= c <= '\ud7a3' for c in source[i:j]+candidate[k:l]):
+            continue
+        left = operations[n-1][2]-operations[n-1][1] if n and operations[n-1][0]=='equal' else 0
+        right = operations[n+1][2]-operations[n+1][1] if n+1 < len(operations) and operations[n+1][0]=='equal' else 0
+        if left+right >= 4:
+            substitutions.add((i,j,candidate[k:l]))
+    return substitutions
+
+
+def _apply_korean_spans(source, spans):
+    text = unicodedata.normalize('NFC',source)
+    positions = [i for i,c in enumerate(text) if not c.isspace()]
+    selections = []
+    for start,end,value in sorted(spans,reverse=True):
+        # Replace individual glyphs so even whitespace within a two-glyph
+        # substitution stays exactly where the initial OCR placed it.
+        before = ''.join(text[positions[i]] for i in range(start,end))
+        for offset,c in reversed(list(enumerate(value))):
+            index = positions[start+offset]
+            text = text[:index]+c+text[index+1:]
+        selections.append({'start':start,'end':end,'before':before,'after':value,
+                           'indices':'NFC codepoints excluding whitespace',
+                           'evidence':'page context and two crop passes including an uncorrected pass',
+                           'accuracy_verified':False})
+    return text,list(reversed(selections))
 
 
 def refine_layout(image: Image.Image, observations: list[dict], call, *, skip_table_boxes=()) -> dict:
@@ -212,6 +295,40 @@ def refine_layout(image: Image.Image, observations: list[dict], call, *, skip_ta
                         entry['status'] = 'agreement_unchanged'
                 else:
                     entry['status'] = 'disagreement_keep_original'
+                if entry['status'] == 'disagreement_keep_original':
+                    context = _context_candidate(image,observations,line,call,report)
+                    if context is not None:
+                        proposed = compact(context['text'])
+                        entry['page_context_candidate'] = context
+                        if proposed in (compact(first),compact(second)):
+                            if compact(first) == compact(second):
+                                selected = first
+                                entry['status'] = 'page_context_agreement_changed'
+                            else:
+                                alternate = _alternate(original)
+                                third = entry.get('alternate_scale_pass')
+                                if third is None:
+                                    third = call(alternate,False)
+                                    entry['alternate_scale_pass'] = third
+                                third_text = _region_text(third,alternate.size,crop_box,box)
+                                if proposed == compact(third_text):
+                                    selected = first if proposed == compact(first) else third_text
+                                    entry['status'] = 'page_context_agreement_changed'
+                        if entry['status'] == 'disagreement_keep_original':
+                            page_spans = _korean_substitutions(line['text'],context['text'])
+                            first_spans = _korean_substitutions(line['text'],first)
+                            second_spans = _korean_substitutions(line['text'],second)
+                            if page_spans & (first_spans | second_spans):
+                                alternate = _alternate(original)
+                                third = entry.get('alternate_scale_pass')
+                                if third is None:
+                                    third = call(alternate,False)
+                                    entry['alternate_scale_pass'] = third
+                                third_spans = _korean_substitutions(line['text'],_region_text(third,alternate.size,crop_box,box))
+                                supported = page_spans & ((first_spans & second_spans) | (first_spans & third_spans) | (second_spans & third_spans))
+                                if supported:
+                                    selected,selections = _apply_korean_spans(line['text'],supported)
+                                    entry.update(status='page_context_span_agreement_changed',span_selections=selections)
                 entry['selected_text'] = selected
             except Exception as error:
                 entry.update(status='failed_keep_original',error=str(error),selected_text=selected)
@@ -222,7 +339,7 @@ def refine_layout(image: Image.Image, observations: list[dict], call, *, skip_ta
     ordered = order_blocks(blocks)
     report['blocks'] = ordered
     report.update(markdown='',text='',
-                  changed_lines=sum(r['status']=='agreement_changed' for r in report['line_refinements']),
+                  changed_lines=sum(r['status'] in ('agreement_changed','page_context_agreement_changed','page_context_span_agreement_changed') for r in report['line_refinements']),
                   disagreements=sum(r['status']=='disagreement_keep_original' for r in report['line_refinements'])+sum(t['unresolved_cells'] for t in tables))
     render_report(report)
     return report

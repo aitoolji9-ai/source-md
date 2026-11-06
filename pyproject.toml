@@ -5,7 +5,7 @@ backend-path = ["."]
 
 [project]
 name = "source-preserve-md"
-version = "0.9.2"
+version = "0.9.3"
 readme = "README.md"
 license = "AGPL-3.0-only"
 license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
@@ -52,7 +52,7 @@ path = "_source_md_wheel.py"
 "skills/source-preserve-md/references/legacy-and-review.md" = "source_preserve_md/skill/references/legacy-and-review.md"
 
 [tool.hatch.build.targets.sdist]
-include = ["/src", "/skills", "/tests", "/scripts", "/examples/legacy-inputs", "/examples/handwriting-inputs/sources.json", "/examples/quality-inputs/sources.json", "/examples/quality-inputs/python-controlflow.html", "/examples/quality-inputs/PYTHON_LICENSE.txt", "/examples/구조보존_시험.html", "/docs", "/README.md", "/LICENSE", "/THIRD_PARTY_NOTICES.md", "/pyproject.toml", "/uv.lock", "/시작.command"]
+include = ["/src", "/skills", "/tests", "/scripts", "/examples/legacy-inputs", "/examples/handwriting-inputs/sources.json", "/examples/handwriting-inputs/korean-strokes.json", "/examples/quality-inputs/sources.json", "/examples/quality-inputs/python-controlflow.html", "/examples/quality-inputs/PYTHON_LICENSE.txt", "/examples/구조보존_시험.html", "/docs", "/README.md", "/LICENSE", "/THIRD_PARTY_NOTICES.md", "/pyproject.toml", "/uv.lock", "/시작.command"]
 exclude = ["**/__pycache__", "**/.engine.json"]
 artifacts = ["/SECURITY.md", "/.github/workflows/ci.yml", "/install.sh", "/_source_md_build.py", "/_source_md_wheel.py"]
 

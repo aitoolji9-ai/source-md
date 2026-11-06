@@ -216,3 +216,130 @@ def test_actual_image_table_renders_original_rows_columns_and_blanks(tmp_path):
     structure = json.loads((out/"structure.json").read_text())
     assert len(structure["units"][0]["metadata"]["ocr_tables"]) == 1
     assert result["status"] == "partial" and validate_bundle(out)["passed"]
+
+
+def test_korean_page_context_can_confirm_a_disputed_region_without_rewriting_source():
+    from source_preserve_md.ocr_refine import refine_layout
+    image = Image.new('RGB', (900, 600), 'white')
+    initial = {'text': '오늘은출분히기다린다', 'confidence': .5, 'bbox': [.1,.2,.8,.12]}
+    corrected = '오늘은충분히기다린다'
+    responses = []
+    def call(prepared, correction):
+        if prepared.size == image.size:
+            response = {'observations': [{**initial, 'text': corrected}]}
+        else:
+            # Both primary crop passes agree, but the alternate crop is wrong.
+            text = corrected if len(responses) < 2 else initial['text']
+            response = {'observations': [{'text': text}]}
+        responses.append(response)
+        return response
+    result = refine_layout(image, [initial], call)
+    assert result['text'] == corrected
+    assert initial['text'] == '오늘은출분히기다린다'
+    assert result['changed_lines'] == 1
+    assert result['page_context']['response']['observations'][0]['text'] == corrected
+    entry = result['line_refinements'][0]
+    assert entry['status'] == 'page_context_agreement_changed'
+    assert entry['passes'][0]['observations'][0]['text'] == corrected
+    assert entry['alternate_scale_pass']['observations'][0]['text'] == initial['text']
+
+
+def test_korean_page_dictionary_alone_cannot_override_disagreeing_uncorrected_views():
+    from source_preserve_md.ocr_refine import refine_layout
+    image = Image.new('RGB', (900, 600), 'white')
+    initial = {'text': '오늘은출분히기다린다', 'confidence': .5, 'bbox': [.1,.2,.8,.12]}
+    corrected = '오늘은충분히기다린다'
+    def call(prepared, correction):
+        return {'observations': [{**initial, 'text': corrected if correction else initial['text']}]}
+    result = refine_layout(image, [initial], call)
+    assert result['text'] == initial['text']
+
+
+def test_korean_context_failure_retains_initial_and_is_recorded():
+    from source_preserve_md.ocr_refine import refine_layout
+    image = Image.new('RGB', (900, 600), 'white')
+    initial = {'text': '오늘은출분히기다린다', 'confidence': .5, 'bbox': [.1,.2,.8,.12]}
+    corrected = '오늘은충분히기다린다'
+    calls = 0
+    def call(prepared, correction):
+        nonlocal calls
+        if prepared.size == image.size:
+            raise RuntimeError('OCR request limit reached')
+        calls += 1
+        return {'observations': [{'text': corrected if calls < 3 else initial['text']}]}
+    result = refine_layout(image, [initial], call)
+    assert result['text'] == initial['text']
+    assert result['page_context']['status'] == 'failed'
+    assert any(i['stage'] == 'page_context' for i in result['issues'])
+
+
+def test_disputed_english_region_does_not_request_korean_page_context():
+    from source_preserve_md.ocr_refine import refine_layout
+    image = Image.new('RGB', (900, 600), 'white')
+    initial = {'text': 'Original English', 'confidence': .5, 'bbox': [.1,.2,.8,.12]}
+    calls = []
+    def call(prepared, correction):
+        calls.append(prepared.size)
+        assert prepared.size != image.size
+        return {'observations': [{'text': 'Different English' if correction else initial['text']}]}
+    result = refine_layout(image, [initial], call)
+    assert result['text'] == initial['text'] and len(calls) == 2
+
+
+@pytest.mark.parametrize('original,proposal,context_box,duplicate_context', [
+    ('현재기온은13도입니다', '현재기온은18도입니다', [.1,.2,.8,.12], False),
+    ('오늘은출분히기다린다', '추가오늘은출분히기다린다', [.1,.2,.8,.12], False),
+    ('오늘은출분히기다린다', '오늘은충분히기다린다', [.1,.7,.8,.12], False),
+    ('오늘은출분히기다린다', '오늘은충분히기다린다', [.1,.2,.8,.12], True),
+])
+def test_page_context_does_not_change_numbers_append_or_choose_ambiguous_lines(original, proposal, context_box, duplicate_context):
+    from source_preserve_md.ocr_refine import refine_layout
+    image = Image.new('RGB', (900, 600), 'white')
+    initial = {'text': original, 'confidence': .5, 'bbox': [.1,.2,.8,.12]}
+    crops = 0
+    def call(prepared, correction):
+        nonlocal crops
+        if prepared.size == image.size:
+            observations = [{'text': proposal, 'bbox': context_box}]
+            if duplicate_context:observations += observations
+            return {'observations': observations}
+        crops += 1
+        return {'observations': [{'text': proposal if crops < 3 else original}]}
+    result = refine_layout(image, [initial], call)
+    assert result['text'] == original
+
+
+def test_korean_glyph_consensus_can_fix_one_syllable_despite_different_line_endings():
+    from source_preserve_md.ocr_refine import refine_layout
+    image = Image.new('RGB', (900, 600), 'white')
+    initial = {'text': '바투른  글씨를 기록한다!', 'confidence': .5, 'bbox': [.1,.2,.8,.12]}
+    page = '바두른 글씨를 기록한다?'
+    crop = '바두른 글씨를 기록한다'
+    def call(prepared, correction):
+        if prepared.size == image.size:return {'observations': [{**initial, 'text': page}]}
+        return {'observations': [{'text': crop+'.' if correction else crop}]}
+    result = refine_layout(image, [initial], call)
+    assert result['text'] == '바두른  글씨를 기록한다!'
+    entry = result['line_refinements'][0]
+    assert entry['status'] == 'page_context_span_agreement_changed'
+    assert entry['span_selections'][0]['before'] == '투'
+    assert entry['span_selections'][0]['after'] == '두'
+    assert initial['text'] == '바투른  글씨를 기록한다!'
+    assert result['changed_lines'] == 1
+
+
+def test_dictionary_only_korean_span_cannot_override_both_uncorrected_crops():
+    from source_preserve_md.ocr_refine import refine_layout
+    image = Image.new('RGB', (900, 600), 'white')
+    initial = {'text': '바투른  글씨를 기록한다!', 'confidence': .5, 'bbox': [.1,.2,.8,.12]}
+    def call(prepared, correction):
+        text = '바두른 글씨를 기록한다?' if correction else '바투른 글씨를 기록한다'
+        return {'observations': [{**initial, 'text': text}] if prepared.size == image.size else [{'text': text}]}
+    assert refine_layout(image, [initial], call)['text'] == initial['text']
+
+
+def test_two_glyph_substitution_preserves_spaces_between_original_glyphs():
+    from source_preserve_md.ocr_refine import _apply_korean_spans
+    text, selections = _apply_korean_spans('오늘은 출  분하게 씁니다 13!', {(3,5,'충분')})
+    assert text == '오늘은 충  분하게 씁니다 13!'
+    assert selections[0]['before'] == '출분' and selections[0]['after'] == '충분'

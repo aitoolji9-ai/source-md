@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TOP = ('README.md','pyproject.toml','uv.lock','.gitignore','LICENSE','THIRD_PARTY_NOTICES.md','SECURITY.md','시작.command','install.sh','_source_md_build.py','_source_md_wheel.py')
-SCRIPTS = ('quality_check.py','fetch_quality_inputs.py','export_repository.py','verify_remaining.py','verify_distribution.py','benchmark_handwriting.py','benchmark_handwriting_extra.py')
+SCRIPTS = ('quality_check.py','fetch_quality_inputs.py','export_repository.py','verify_remaining.py','verify_distribution.py','benchmark_handwriting.py','benchmark_handwriting_extra.py','prepare_korean_strokes.py')
 SKILL = ('SKILL.md','scripts/run.py','agents/openai.yaml','references/dom-snapshot.md','references/legacy-and-review.md')
 TABLE_FIXTURE = Path('tests/fixtures/shadowed-merged-table.png')
 FORBIDDEN = (r'/' + r'Users/[^/\s]+/', r'/' + r'home/[^/\s]+/', r'gh[pousr]_[A-Za-z0-9]{30,}',
@@ -32,7 +32,7 @@ def export(target: Path) -> dict:
     files += [p.relative_to(ROOT) for directory in ['docs','.github'] for p in (ROOT/directory).rglob('*') if p.is_file()]
     files += [Path('examples/구조보존_시험.html'),Path('examples/quality-inputs/sources.json'),
               Path('examples/quality-inputs/python-controlflow.html'),Path('examples/quality-inputs/PYTHON_LICENSE.txt'),
-              Path('examples/handwriting-inputs/sources.json')]
+              Path('examples/handwriting-inputs/sources.json'),Path('examples/handwriting-inputs/korean-strokes.json')]
     catalog=Path('examples/legacy-inputs/sources.json')
     files.append(catalog)
     for entry in json.loads((ROOT/catalog).read_text(encoding='utf-8')):
