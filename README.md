@@ -1,10 +1,10 @@
-# 원문결 · SourceWeave
+# 원문결 · Source MD
 
 파일·공개 웹페이지의 원문, 순서, 표, 코드, 이미지와 출처를 Markdown으로 추출하는 로컬 프로그램입니다. 사용자 화면·CLI·Codex/Hermes 스킬이 같은 엔진을 사용합니다. 버전 **0.8.0**.
 
-영문 프로젝트명은 **SourceWeave**, GitHub 저장소 이름은 `sourceweave`입니다. 설치 패키지·스킬 이름은 `source-preserve-md`, 실행 명령은 `preserve-md`를 사용합니다.
+영문 프로젝트명은 **Source MD**, GitHub 저장소 이름은 `source-md`입니다. 설치 패키지·스킬 이름은 `source-preserve-md`, 실행 명령은 `preserve-md`를 사용합니다.
 
-[프로그램 다운로드](https://github.com/aitoolji9-ai/sourceweave/releases/tag/v0.8.0) · [설치·사용 검증 결과](docs/PUBLISHED_VERIFICATION.md) · [스킬 설치](#스킬로-설치)
+[프로그램 다운로드](https://github.com/aitoolji9-ai/source-md/releases/tag/v0.8.0) · [설치·사용 검증 결과](docs/PUBLISHED_VERIFICATION.md) · [스킬 설치](#스킬로-설치)
 
 PDF·한글·워드·엑셀·파워포인트·웹페이지를 다음 작업에 재사용하려는 사람에게 적합합니다. 프로그램 화면으로 직접 사용하거나, 설치한 스킬을 Codex·Hermes에서 호출할 수 있습니다.
 
@@ -37,8 +37,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 새로 설치할 위치에서 아래 명령을 한 줄씩 실행합니다. `uv sync`가 지정한 Python과 필요한 패키지를 준비합니다.
 
 ```sh
-git clone https://github.com/aitoolji9-ai/sourceweave.git
-cd sourceweave
+git clone https://github.com/aitoolji9-ai/source-md.git
+cd source-md
 uv sync --frozen --python 3.12
 uv run --frozen preserve-md doctor
 uv run --frozen preserve-md serve --open
@@ -56,7 +56,7 @@ uv run --frozen preserve-md serve --open
 
 ### ZIP으로 받는 경우
 
-[다운로드 페이지](https://github.com/aitoolji9-ai/sourceweave/releases/tag/v0.8.0)에서 **`source-preserve-md-0.8.0-repository.zip`**을 받아 압축을 풉니다. 터미널에서 압축을 푼 프로젝트 폴더로 이동한 뒤 위 명령 중 `uv sync`부터 실행하면 됩니다. `.whl`은 Python용 설치 패키지이며, ZIP과 같은 전체 소스 폴더가 아닙니다.
+[다운로드 페이지](https://github.com/aitoolji9-ai/source-md/releases/tag/v0.8.0)에서 **`source-preserve-md-0.8.0-repository.zip`**을 받아 압축을 풉니다. 터미널에서 압축을 푼 프로젝트 폴더로 이동한 뒤 위 명령 중 `uv sync`부터 실행하면 됩니다. `.whl`은 Python용 설치 패키지이며, ZIP과 같은 전체 소스 폴더가 아닙니다.
 
 ### 추가 기능 준비
 
@@ -122,7 +122,7 @@ uv run --frozen --offline preserve-md correct 기존_묶음 --corrections ocr-co
 
 ## 스킬로 설치
 
-**프로그램을 먼저 설치한 뒤**, 터미널에서 `sourceweave` 프로젝트 폴더로 이동합니다. 사용하는 도구에 맞는 명령을 실행합니다. Codex·Hermes 자체 설치는 별도입니다.
+**프로그램을 먼저 설치한 뒤**, 터미널에서 `source-md` 프로젝트 폴더로 이동합니다. 사용하는 도구에 맞는 명령을 실행합니다. Codex·Hermes 자체 설치는 별도입니다.
 
 ### Codex
 
@@ -181,7 +181,7 @@ python3 ~/.hermes/skills/source-preserve-md/scripts/run.py doctor
 
 ## 검증·공유
 
-[공개 저장소에서 내려받아 설치한 검증 결과](docs/PUBLISHED_VERIFICATION.md)와 [GitHub Actions](https://github.com/aitoolji9-ai/sourceweave/actions/workflows/ci.yml)를 확인할 수 있습니다.
+[공개 저장소에서 내려받아 설치한 검증 결과](docs/PUBLISHED_VERIFICATION.md)와 [GitHub Actions](https://github.com/aitoolji9-ai/source-md/actions/workflows/ci.yml)를 확인할 수 있습니다.
 
 ```sh
 uv sync --frozen --extra dev

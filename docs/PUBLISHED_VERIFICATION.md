@@ -1,6 +1,6 @@
 # 공개 저장소 설치 검증 — 2026-11-06
 
-공개 저장소: [aitoolji9-ai/sourceweave](https://github.com/aitoolji9-ai/sourceweave).
+공개 저장소: [aitoolji9-ai/source-md](https://github.com/aitoolji9-ai/source-md).
 
 ## 공개 다운로드와 설치
 
@@ -10,7 +10,7 @@
 
 ## GitHub Actions
 
-검증한 실행: [Verify shared distribution #42227051902](https://github.com/aitoolji9-ai/sourceweave/actions/runs/42227051902). 기준 커밋: `1b9f4a4c3ee586141a0d9212f54e9b52045d64aa`.
+검증한 실행: [Verify shared distribution #42227051902](https://github.com/aitoolji9-ai/source-md/actions/runs/42227051902). 기준 커밋: `1b9f4a4c3ee586141a0d9212f54e9b52045d64aa`.
 
 | 원격 잡 | 결과 |
 |---|---|
@@ -19,13 +19,13 @@
 | Chromium 동적 렌더·details·iframe·쓰기 요청 차단 | 통과 |
 | 잠금 의존성의 공개 취약점 조회 | 통과 |
 
-최신 커밋의 상태는 [워크플로 실행 목록](https://github.com/aitoolji9-ai/sourceweave/actions/workflows/ci.yml)에서 확인한다. 문서/스킬 안내를 갱신한 커밋도 같은 검사를 실행한다. 선택 도구가 없는 CI 환경에서는 해당 실제 변환을 성공 수치에 합산하지 않으므로 wheel 검사 수는 환경별로 다르다.
+최신 커밋의 상태는 [워크플로 실행 목록](https://github.com/aitoolji9-ai/source-md/actions/workflows/ci.yml)에서 확인한다. 문서/스킬 안내를 갱신한 커밋도 같은 검사를 실행한다. 선택 도구가 없는 CI 환경에서는 해당 실제 변환을 성공 수치에 합산하지 않으므로 wheel 검사 수는 환경별로 다르다.
 
 ## 재현
 
 ```sh
-git clone https://github.com/aitoolji9-ai/sourceweave.git
-cd sourceweave
+git clone https://github.com/aitoolji9-ai/source-md.git
+cd source-md
 uv sync --frozen --python 3.12
 uv run --frozen preserve-md doctor
 uv run --frozen preserve-md convert examples/구조보존_시험.html --ocr off --out outputs/first-run
