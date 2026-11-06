@@ -17,3 +17,6 @@ def test_export_ignores_private_history_binding_and_unregistered_binary(tmp_path
     assert not (output/'skills/source-preserve-md/.engine.json').exists()
     assert not (output/'examples/legacy-inputs/private.hwp').exists()
     assert (output/'examples/legacy-inputs/table.hwp').is_file()
+    fixture = Path('tests/fixtures/shadowed-merged-table.png')
+    assert (output/fixture).read_bytes() == (sandbox/fixture).read_bytes()
+    assert (output/fixture.with_suffix('.json')).is_file()

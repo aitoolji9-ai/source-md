@@ -6,7 +6,7 @@ agreement rule, not an accuracy guarantee. Both candidates and originals remain.
 from __future__ import annotations
 
 import unicodedata
-from PIL import Image, ImageOps
+from PIL import Image, ImageChops, ImageFilter, ImageOps
 
 from .html_extract import escape
 from .raster_layout import detect_tables, borderless_tables, order_blocks, table_markdown
@@ -36,10 +36,18 @@ def _has_ink(image):
     gray = image.convert('L')
     histogram = gray.histogram()
     background = max(range(256),key=lambda n:histogram[n])
+    local = gray.filter(ImageFilter.BoxBlur(max(4, min(16, min(gray.size)/6))))
     if background < 100:
-        mask = gray.point(lambda p:255 if p > background+25 else 0)
+        contrast = ImageChops.subtract(gray, local)
+        mask = contrast.point(lambda p:255 if p > 25 else 0)
     else:
-        mask = gray.point(lambda p:255 if p < min(235,background-20) else 0)
+        contrast = ImageChops.subtract(local, gray)
+        mask = contrast.point(lambda p:255 if p > 20 else 0)
+    # The cell crop already excludes four pixels of the detected grid. A blurred
+    # intersection can leave a one-pixel fringe at its edge; do not turn that
+    # into invented "unrecognized" content. Source/crop/OCR pixels stay intact.
+    if min(mask.size) > 2:
+        mask = mask.crop((1, 1, mask.width-1, mask.height-1))
     return mask.getbbox() is not None
 
 

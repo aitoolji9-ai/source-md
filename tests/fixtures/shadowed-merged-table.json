@@ -1,0 +1,165 @@
+{
+  "id": "table-merged-blur",
+  "sha256": "c57c363a76b307526a8e70209c94b99d98432ec8fff06c9bc7a3ef92aea57fb7",
+  "rows": 4,
+  "columns": 4,
+  "cells": [
+    {
+      "row": 0,
+      "column": 0,
+      "rowspan": 2,
+      "colspan": 1,
+      "text": "구분",
+      "bbox": [
+        60,
+        55,
+        390,
+        325
+      ]
+    },
+    {
+      "row": 0,
+      "column": 1,
+      "rowspan": 1,
+      "colspan": 2,
+      "text": "2026년 실적",
+      "bbox": [
+        390,
+        55,
+        1050,
+        190
+      ]
+    },
+    {
+      "row": 0,
+      "column": 3,
+      "rowspan": 2,
+      "colspan": 1,
+      "text": "비고",
+      "bbox": [
+        1050,
+        55,
+        1380,
+        325
+      ]
+    },
+    {
+      "row": 1,
+      "column": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "text": "상반기",
+      "bbox": [
+        390,
+        190,
+        720,
+        325
+      ]
+    },
+    {
+      "row": 1,
+      "column": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "text": "하반기",
+      "bbox": [
+        720,
+        190,
+        1050,
+        325
+      ]
+    },
+    {
+      "row": 2,
+      "column": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "text": "부품 A",
+      "bbox": [
+        60,
+        325,
+        390,
+        460
+      ]
+    },
+    {
+      "row": 2,
+      "column": 1,
+      "rowspan": 1,
+      "colspan": 1,
+      "text": "1,250",
+      "bbox": [
+        390,
+        325,
+        720,
+        460
+      ]
+    },
+    {
+      "row": 2,
+      "column": 2,
+      "rowspan": 1,
+      "colspan": 1,
+      "text": "2,400",
+      "bbox": [
+        720,
+        325,
+        1050,
+        460
+      ]
+    },
+    {
+      "row": 2,
+      "column": 3,
+      "rowspan": 1,
+      "colspan": 1,
+      "text": "",
+      "bbox": [
+        1050,
+        325,
+        1380,
+        460
+      ]
+    },
+    {
+      "row": 3,
+      "column": 0,
+      "rowspan": 1,
+      "colspan": 1,
+      "text": "부품 B",
+      "bbox": [
+        60,
+        460,
+        390,
+        595
+      ]
+    },
+    {
+      "row": 3,
+      "column": 1,
+      "rowspan": 1,
+      "colspan": 2,
+      "text": "검사 완료\n재고 12개",
+      "bbox": [
+        390,
+        460,
+        1050,
+        595
+      ]
+    },
+    {
+      "row": 3,
+      "column": 3,
+      "rowspan": 1,
+      "colspan": 1,
+      "text": "보류",
+      "bbox": [
+        1050,
+        460,
+        1380,
+        595
+      ]
+    }
+  ],
+  "provenance": "Locally authored synthetic table, same frozen image used in 2026-11-07 OCR comparison; mild blur and left-to-right shadow; no private data or fonts bundled."
+}

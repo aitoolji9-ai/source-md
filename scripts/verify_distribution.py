@@ -92,6 +92,20 @@ if sys.platform=='darwin':
  action={'schema_version':1,'source_sha256':__import__('hashlib').sha256((inputs/'ocr.png').read_bytes()).hexdigest(),'actions':[{'kind':'line','target':raw['source_locator'],'line':block['source_observation'],'expected':block['text'],'replacement':block['text']+' CHECKED'}]}
  corrected=correct_bundle(folder,root/'corrected',action)
  check('installed-ocr-correction',corrected['ocr_rerun'] is False and validate_bundle(root/'corrected')['passed'] and 'CHECKED' in (root/'corrected'/PRIMARY).read_text() and 'CHECKED' not in (folder/PRIMARY).read_text())
+ fixture=Path(config['table_fixture']);truth=json.loads(fixture.with_suffix('.json').read_text())
+ folder=root/'shadowed-merged-table';convert(fixture,folder)
+ tables=BeautifulSoup(PARSER.render((folder/PRIMARY).read_text()),'html.parser').find_all('table')
+ check('installed-shadowed-merged-table-detected',len(tables)==1)
+ occupied=set();actual={}
+ for ri,row in enumerate(tables[0].find_all('tr')):
+  ci=0
+  for cell in row.find_all(['td','th'],recursive=False):
+   while (ri,ci) in occupied:ci+=1
+   rs,cs=int(cell.get('rowspan',1)),int(cell.get('colspan',1))
+   actual[(ri,ci,rs,cs)]=''.join(cell.get_text().split())
+   occupied.update((r,c) for r in range(ri,ri+rs) for c in range(ci,ci+cs));ci+=cs
+ expected={tuple(c[k] for k in ['row','column','rowspan','colspan']):''.join(c['text'].split()) for c in truth['cells']}
+ check('installed-shadowed-table-md-values-spans-blank',actual==expected and validate_bundle(folder)['passed'])
 
 # Installed wheel's live Flask routes and download bytes, without source checkout imports.
 app=create_app(root/'web-outputs');client=app.test_client();token=client.get('/api/config').json['token']
@@ -105,7 +119,7 @@ report={'version':source_preserve_md.__version__,'wheel_import':True,'checks':ch
 (root/'verification.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
 print(json.dumps({'passed':len(checks),'failed':0,'version':source_preserve_md.__version__}))
 '''
-    run([python,'-c',code],stdin=json.dumps({'fixtures':str(ROOT/'examples/legacy-inputs'),'require_office':require_office}),timeout=300)
+    run([python,'-c',code],stdin=json.dumps({'fixtures':str(ROOT/'examples/legacy-inputs'),'table_fixture':str(ROOT/'tests/fixtures/shadowed-merged-table.png'),'require_office':require_office}),timeout=300)
     return json.loads((out/'verification.json').read_text())
 
 

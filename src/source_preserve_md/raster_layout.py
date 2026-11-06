@@ -9,7 +9,7 @@ import re
 import statistics
 import unicodedata
 
-from PIL import Image,ImageDraw
+from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 from .html_extract import escape
 
@@ -18,19 +18,40 @@ def _segments(mask: Image.Image, minimum: int):
     width, height = mask.size
     data = mask.tobytes()
     pattern = re.compile(b"\xff{" + str(minimum).encode() + b",}")
-    found = []
+    bands = []
+    previous = []
+    def root(n):
+        while bands[n][4] != n:
+            bands[n][4] = bands[bands[n][4]][4]
+            n = bands[n][4]
+        return n
     for y in range(height):
+        current = []
         for match in pattern.finditer(data[y*width:(y+1)*width]):
             start, end = match.span()
-            # Adjacent pixels in a thick stroke describe the same line.
-            previous = next((s for s in reversed(found[-30:]) if y-s[1] <= 3 and abs(start-s[0]) <= 3 and abs(end-s[2]) <= 3), None)
-            if previous is not None:
-                previous[1] = y
-                previous[0] = min(start, previous[0])
-                previous[2] = max(end, previous[2])
+            # Blur/illumination changes a stroke's width between pixel rows.
+            # Join overlapping runs on adjacent rows, retaining the whole band
+            # so its centre, rather than a fringe, identifies the grid axis.
+            touching = {root(n) for a, b, n in previous if start < b and a < end}
+            if touching:
+                n = min(touching)
+                for other in touching - {n}:
+                    band = bands[other]
+                    bands[n][0] = min(bands[n][0], band[0])
+                    bands[n][1] = min(bands[n][1], band[1])
+                    bands[n][2] = max(bands[n][2], band[2])
+                    bands[n][3] = max(bands[n][3], band[3])
+                    band[4] = n
+                bands[n][0] = min(bands[n][0], start)
+                bands[n][2] = max(bands[n][2], end)
+                bands[n][3] = y
             else:
-                found.append([start, y, end])
-    return found
+                n = len(bands)
+                bands.append([start, y, end, y, n])
+            current.append((start, end, n))
+        previous = current
+    return [[a, round((top+bottom)/2), b]
+            for n, (a, top, b, bottom, parent) in enumerate(bands) if parent == n]
 
 
 def _clusters(values, tolerance=4):
@@ -46,7 +67,13 @@ def _clusters(values, tolerance=4):
 def detect_tables(image: Image.Image) -> list[dict]:
     gray = image.convert("L")
     width, height = gray.size
-    mask = gray.point(lambda p: 255 if p < 225 else 0)
+    # A shaded page can be darker than a fixed global ink threshold. Compare
+    # each pixel with its local background instead, so smooth illumination is
+    # removed while narrow grid strokes remain. This mask is for geometry only;
+    # OCR and saved originals keep the source pixels and coordinates unchanged.
+    radius = max(8, min(32, round(min(width, height) / 30)))
+    background = gray.filter(ImageFilter.BoxBlur(radius))
+    mask = ImageChops.subtract(background, gray).point(lambda p: 255 if p > 12 else 0)
     horizontal = _segments(mask, max(35, int(width*.07)))
     vertical = _segments(mask.transpose(Image.Transpose.TRANSPOSE), max(35, int(height*.035)))
     # Repair short breaks inside a row stroke. Gaps ending on column boundaries
@@ -146,6 +173,8 @@ def detect_tables(image: Image.Image) -> list[dict]:
             tables.append({"bbox":[xs[0],ys[0],xs[-1],ys[-1]], "row_count":rows, "column_count":cols,
                            "cells":sorted(cells,key=lambda c:(c["row"],c["column"])),
                            "method":"raster_connected_ruled_lines", "geometry_verified":False,
+                           "line_detection":{"background":"local_box_mean", "radius":radius,
+                                             "minimum_contrast":12, "axes":"connected_stroke_band_centres"},
                            "repaired_strokes":[s for s in repaired if xs[0]<=s[0]<=xs[-1] and ys[0]<=s[1]<=ys[-1]]})
     return sorted(tables,key=lambda t:(t["bbox"][1],t["bbox"][0]))
 

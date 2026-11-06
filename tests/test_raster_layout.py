@@ -1,12 +1,81 @@
 import io
 import json
 import sys
+from pathlib import Path
 
 import pytest
 from PIL import Image, ImageDraw, ImageFont
 from bs4 import BeautifulSoup
 
 from source_preserve_md.engine import PARSER, PRIMARY, convert, validate_bundle
+
+
+def test_blurred_stroke_with_varying_width_is_one_line():
+    from source_preserve_md.raster_layout import _segments
+    mask = Image.new('L', (200, 40), 0)
+    draw = ImageDraw.Draw(mask)
+    draw.line((50, 8, 150, 8), fill=255)
+    draw.rectangle((10, 9, 190, 13), fill=255)
+    draw.line((50, 14, 150, 14), fill=255)
+    assert _segments(mask, 35) == [[10, 11, 191]]
+
+
+def test_shadowed_blurred_merged_grid_preserves_exact_cell_spans():
+    from source_preserve_md.raster_layout import detect_tables
+    fixture = Path(__file__).parent / 'fixtures' / 'shadowed-merged-table.png'
+    truth = json.loads(fixture.with_suffix('.json').read_text())
+    with Image.open(fixture) as image:
+        original_pixels = image.tobytes()
+        tables = detect_tables(image)
+        assert image.tobytes() == original_pixels
+    assert len(tables) == 1
+    table = tables[0]
+    assert (table['row_count'], table['column_count']) == (truth['rows'], truth['columns'])
+    fields = ('row', 'column', 'rowspan', 'colspan')
+    assert {tuple(c[k] for k in fields) for c in table['cells']} == {
+        tuple(c[k] for k in fields) for c in truth['cells']
+    }
+
+
+def test_shaded_blank_cell_ignores_grid_fringe_but_keeps_small_ink():
+    from source_preserve_md.raster_layout import detect_tables
+    from source_preserve_md.ocr_refine import _crop, _has_ink
+    fixture = Path(__file__).parent / 'fixtures' / 'shadowed-merged-table.png'
+    with Image.open(fixture) as image:
+        table = detect_tables(image)[0]
+        cell = next(c for c in table['cells'] if c['row'] == 2 and c['column'] == 3)
+        _, original, _ = _crop(image, cell['bbox'], inset=4)
+    before = original.tobytes()
+    assert not _has_ink(original)
+    assert original.tobytes() == before
+    ImageDraw.Draw(original).point((2, 2), fill='black')
+    assert _has_ink(original)
+
+
+@pytest.mark.skipif(sys.platform != 'darwin', reason='Actual Apple Vision OCR')
+def test_actual_shadowed_merged_table_md_keeps_values_spans_and_blank(tmp_path):
+    fixture = Path(__file__).parent / 'fixtures' / 'shadowed-merged-table.png'
+    truth = json.loads(fixture.with_suffix('.json').read_text())
+    output = tmp_path / 'shadowed-merged'
+    result = convert(fixture, output)
+    tables = BeautifulSoup(PARSER.render((output / PRIMARY).read_text()), 'html.parser').find_all('table')
+    assert len(tables) == 1
+    occupied, actual = set(), {}
+    for row_index, row in enumerate(tables[0].find_all('tr')):
+        column = 0
+        for cell in row.find_all(['td', 'th'], recursive=False):
+            while (row_index, column) in occupied:
+                column += 1
+            rs, cs = int(cell.get('rowspan', 1)), int(cell.get('colspan', 1))
+            actual[(row_index, column, rs, cs)] = ''.join(cell.get_text().split())
+            occupied.update((r, c) for r in range(row_index, row_index+rs) for c in range(column, column+cs))
+            column += cs
+    fields = ('row', 'column', 'rowspan', 'colspan')
+    expected = {tuple(c[k] for k in fields): ''.join(c['text'].split()) for c in truth['cells']}
+    assert actual == expected
+    assert sum(not v for v in actual.values()) == 1
+    assert result['ocr_used'] and result['status'] == 'partial'
+    assert validate_bundle(output)['passed']
 
 
 def grid_image():

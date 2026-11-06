@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TOP = ('README.md','pyproject.toml','uv.lock','.gitignore','LICENSE','THIRD_PARTY_NOTICES.md','SECURITY.md','시작.command','install.sh','_source_md_build.py','_source_md_wheel.py')
 SCRIPTS = ('quality_check.py','fetch_quality_inputs.py','export_repository.py','verify_remaining.py','verify_distribution.py')
 SKILL = ('SKILL.md','scripts/run.py','agents/openai.yaml','references/dom-snapshot.md','references/legacy-and-review.md')
+TABLE_FIXTURE = Path('tests/fixtures/shadowed-merged-table.png')
 FORBIDDEN = (r'/' + r'Users/[^/\s]+/', r'/' + r'home/[^/\s]+/', r'gh[pousr]_[A-Za-z0-9]{30,}',
              r'github_pat_[A-Za-z0-9_]{30,}', r'AKIA[0-9A-Z]{16}', r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----')
 
@@ -23,6 +24,9 @@ def export(target: Path) -> dict:
     files = [Path(name) for name in TOP]
     files += [p.relative_to(ROOT) for p in (ROOT/'src').rglob('*') if p.is_file() and '__pycache__' not in p.parts]
     files += [p.relative_to(ROOT) for p in (ROOT/'tests').glob('test_*.py')]
+    if hashlib.sha256((ROOT/TABLE_FIXTURE).read_bytes()).hexdigest() != json.loads((ROOT/TABLE_FIXTURE.with_suffix('.json')).read_text())['sha256']:
+        raise ValueError('Shadowed table fixture hash mismatch')
+    files += [TABLE_FIXTURE, TABLE_FIXTURE.with_suffix('.json')]
     files += [Path('scripts')/name for name in SCRIPTS]
     files += [Path('skills/source-preserve-md')/name for name in SKILL]
     files += [p.relative_to(ROOT) for directory in ['docs','.github'] for p in (ROOT/directory).rglob('*') if p.is_file()]
@@ -43,7 +47,7 @@ def export(target: Path) -> dict:
     for relative in sorted(set(files)):
         data = (ROOT/relative).read_bytes()
         # Binary test fixtures keep their upstream provenance and byte hashes.
-        if relative.suffix not in ('.hwp',) and relative.as_posix()!='src/source_preserve_md/install_probe.png':
+        if relative.suffix not in ('.hwp',) and relative != TABLE_FIXTURE and relative.as_posix()!='src/source_preserve_md/install_probe.png':
             text = data.decode('utf-8')
             for pattern in FORBIDDEN:
                 # Scanner's regex definitions are patterns, not private values.
