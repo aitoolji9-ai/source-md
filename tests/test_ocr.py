@@ -25,6 +25,79 @@ def fake_recognize(path, **kwargs):
             "observations": [{"text": "IMAGE ONLY 84729", "confidence": .98, "bbox": [.05, .25, .8, .3]}]}
 
 
+def test_short_uncertain_latin_line_retries_english_without_dictionary(tmp_path, monkeypatch):
+    from source_preserve_md import ocr
+    calls = []
+    def recognize(path, **kwargs):
+        language = kwargs.get('language', '')
+        calls.append((language, kwargs.get('correction', False)))
+        return {'engine': 'test-double', 'languages': [language] if language else ['ko-KR', 'en-US'],
+                'observations': [{'text': 'be really afraid' if language == 'en-US' else 'be reolly afroid',
+                                  'confidence': 1 if language else .5, 'bbox': [.05, .25, .8, .3]}]}
+    monkeypatch.setattr(ocr, 'recognize', recognize)
+    source = tmp_path/'handwriting.png';source.write_bytes(labelled_image())
+    output = tmp_path/'converted';result = convert(source, output)
+    assert 'be really afraid' in (output/PRIMARY).read_text()
+    structure = json.loads((output/'structure.json').read_text())
+    unit = next(u for u in structure['units'] if u['metadata'].get('ocr_data'))
+    raw = json.loads((output/unit['metadata']['ocr_data']).read_text())
+    assert raw['initial_recognition']['observations'][0]['text'] == 'be reolly afroid'
+    assert raw['latin_line_retry']['method'] == 'medoid_of_uncorrected_english_views'
+    assert calls == [('', False), ('en-US', False), ('en-US', False), ('en-US', False)]
+    assert result['ocr']['requests'] == 4 and validate_bundle(output)['passed']
+
+
+@pytest.mark.parametrize('text,confidence,size', [
+    ('한국어 손글씨', .5, (800, 100)),
+    ('1234-5678', .5, (800, 100)),
+    ('Clear English text', 1, (800, 100)),
+    ('Uncertain English text', .5, (800, 600)),
+])
+def test_english_line_retry_keeps_ineligible_inputs_untouched(text, confidence, size):
+    from source_preserve_md.ocr_candidates import retry_latin_line
+    initial = {'observations': [{'text': text, 'confidence': confidence}]}
+    def unexpected(*args):
+        raise AssertionError('Must not invoke another OCR request')
+    assert retry_latin_line(Image.new('RGB', size, 'white'), initial, unexpected) is initial
+
+
+def test_english_candidate_selection_keeps_whole_response_and_source_coordinates():
+    from source_preserve_md.ocr_candidates import retry_latin_line
+    image = Image.new('RGB', (800, 100), 'white')
+    initial = {'observations': [{'text': 'uncertain English', 'confidence': .5, 'bbox': [.1,.2,.8,.5]}]}
+    calls = []
+    def candidate(prepared, language, correction):
+        calls.append((prepared.size, language, correction))
+        border = 0 if len(calls) == 1 else 32
+        w, h = prepared.width-2*border, prepared.height-2*border
+        text = 'outlier' if len(calls) == 1 else 'whole candidate'
+        return {'observations': [{'text': text, 'confidence': .5,
+            'bbox': [(border+.1*w)/prepared.width, (border+.2*h)/prepared.height,
+                     .8*w/prepared.width, .5*h/prepared.height]}]}
+    result = retry_latin_line(image, initial, candidate)
+    assert result['observations'][0]['text'] == 'whole candidate'
+    assert result['observations'][0]['bbox'] == pytest.approx([.1,.2,.8,.5])
+    assert result['initial_recognition'] == initial
+    assert result['latin_line_retry']['selected_index'] == 1
+    assert len(result['latin_line_retry']['candidates']) == 3
+    assert all(language == 'en-US' and not correction for _,language,correction in calls)
+
+
+def test_english_retry_budget_failure_keeps_initial_text_and_reports_partial(tmp_path, monkeypatch):
+    from source_preserve_md import ocr
+    def initial_only(*args, **kwargs):
+        return {'engine': 'test-double', 'observations': [
+            {'text': 'initial English text', 'confidence': .5, 'bbox': [.05,.25,.8,.3]}]}
+    monkeypatch.setattr(ocr, 'recognize', initial_only)
+    monkeypatch.setattr(ocr, 'MAX_REQUESTS', 1)
+    source = tmp_path/'line.png';source.write_bytes(labelled_image())
+    out = tmp_path/'limited';result = convert(source, out)
+    assert result['ocr']['requests'] == 1
+    assert 'initial English text' in (out/PRIMARY).read_text()
+    assert any(w['code'] == 'ocr_limit' for w in result['warnings'])
+    assert result['status'] == 'partial' and validate_bundle(out)['passed']
+
+
 def test_mixed_pdf_extracts_image_text_and_keeps_native_text(tmp_path, monkeypatch):
     import pymupdf
     from source_preserve_md import ocr

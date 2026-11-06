@@ -5,12 +5,18 @@ import ImageIO
 // File OCR only: no screen capture, UI automation, network or language-model API.
 do {
     let arguments = Array(CommandLine.arguments.dropFirst())
-    let paths = arguments.filter { $0 != "--language-correction" }
+    let languageArguments = arguments.filter { $0.hasPrefix("--language=") }
+    let language = languageArguments.first.map { String($0.dropFirst("--language=".count)) }
+    guard languageArguments.count <= 1, language == nil || ["ko-KR", "en-US"].contains(language!) else {
+        throw NSError(domain: "SourcePreserveMD", code: 3,
+                      userInfo: [NSLocalizedDescriptionKey: "Unsupported OCR language"])
+    }
+    let paths = arguments.filter { $0 != "--language-correction" && !$0.hasPrefix("--language=") }
     let request = VNRecognizeTextRequest()
     request.recognitionLevel = .accurate
     request.usesLanguageCorrection = arguments.contains("--language-correction")
     let supported = try request.supportedRecognitionLanguages()
-    request.recognitionLanguages = ["ko-KR", "en-US"].filter { supported.contains($0) }
+    request.recognitionLanguages = (language.map { [$0] } ?? ["ko-KR", "en-US"]).filter { supported.contains($0) }
     guard !request.recognitionLanguages.isEmpty else {
         throw NSError(domain: "SourcePreserveMD", code: 1,
                       userInfo: [NSLocalizedDescriptionKey: "Korean/English recognition unavailable"])

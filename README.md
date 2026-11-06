@@ -1,10 +1,10 @@
 # 원문결 · Source MD
 
-파일·공개 웹페이지의 원문, 순서, 표, 코드, 이미지와 출처를 Markdown으로 추출하는 로컬 프로그램입니다. 사용자 화면·CLI·Codex/Hermes 스킬이 같은 엔진을 사용합니다. 버전 **0.9.1**.
+파일·공개 웹페이지의 원문, 순서, 표, 코드, 이미지와 출처를 Markdown으로 추출하는 로컬 프로그램입니다. 사용자 화면·CLI·Codex/Hermes 스킬이 같은 엔진을 사용합니다. 버전 **0.9.2**.
 
 영문 프로젝트명은 **Source MD**, GitHub 저장소 이름은 `source-md`입니다. 설치 패키지·스킬 이름은 `source-preserve-md`, 실행 명령은 `preserve-md`를 사용합니다.
 
-[프로그램 다운로드](https://github.com/aitoolji9-ai/source-md/releases/tag/v0.9.1) · [필수 환경·설치 검사](docs/INSTALLATION_GATE.md) · [스킬 설치](#스킬로-설치)
+[프로그램 다운로드](https://github.com/aitoolji9-ai/source-md/releases/tag/v0.9.2) · [필수 환경·설치 검사](docs/INSTALLATION_GATE.md) · [스킬 설치](#스킬로-설치)
 
 PDF·한글·워드·엑셀·파워포인트·웹페이지를 다음 작업에 재사용하려는 사람에게 적합합니다. 프로그램 화면으로 직접 사용하거나, 설치한 스킬을 Codex·Hermes에서 호출할 수 있습니다.
 
@@ -67,7 +67,7 @@ uv run --frozen preserve-md serve --open
 
 ### ZIP으로 받는 경우
 
-[다운로드 페이지](https://github.com/aitoolji9-ai/source-md/releases/tag/v0.9.1)에서 **`source-md-0.9.1-repository.zip`**을 받아 압축을 풉니다. 터미널에서 압축을 푼 프로젝트 폴더로 이동한 뒤 압축을 푼 `source-md` 폴더에서 `sh install.sh`부터 실행하면 됩니다. 0.9.0 공식 배포는 사전 검사를 거치는 소스 ZIP/소스 배포본입니다. 설치 단계 검사를 실행할 수 없는 미리 빌드된 wheel은 공식 다운로드로 제공하지 않습니다.
+[다운로드 페이지](https://github.com/aitoolji9-ai/source-md/releases/tag/v0.9.2)에서 **`source-md-0.9.2-repository.zip`**을 받아 압축을 풉니다. 터미널에서 압축을 푼 프로젝트 폴더로 이동한 뒤 압축을 푼 `source-md` 폴더에서 `sh install.sh`부터 실행하면 됩니다. 0.9.0 공식 배포는 사전 검사를 거치는 소스 ZIP/소스 배포본입니다. 설치 단계 검사를 실행할 수 없는 미리 빌드된 wheel은 공식 다운로드로 제공하지 않습니다.
 
 ### 추가 기능 준비
 
@@ -192,6 +192,8 @@ python3 ~/.hermes/skills/source-preserve-md/scripts/run.py doctor
 
 ## 검증·공유
 
+[0.9.2 한글·영문 손글씨 비교·개선 검증](docs/HANDWRITING_BENCHMARK.md): 고정 평가 영문 CER 43.48%→15.72%, 한글 28.08% 유지. 한글 개발 사례의 이웃 글자 덧붙임 방지와 후보 보관을 보완했으며 기본 OCR은 Mac Apple Vision입니다.
+
 [0.9.1 흐린 병합 표 수정·재검증](docs/SHADOWED_TABLE_FIX.md): 같은 실패 표본 12/12셀 복원, 표 4개 56/56셀과 실제 MD의 병합·빈칸을 대조했습니다.
 
 [공개 저장소에서 내려받아 설치한 검증 결과](docs/PUBLISHED_VERIFICATION.md)와 [GitHub Actions](https://github.com/aitoolji9-ai/source-md/actions/workflows/ci.yml)를 확인할 수 있습니다.
@@ -200,7 +202,7 @@ python3 ~/.hermes/skills/source-preserve-md/scripts/run.py doctor
 sh install.sh --dev
 uv run --frozen pytest -q -m 'not browser'
 uv build
-uv run --frozen python scripts/verify_distribution.py --wheel dist/source_preserve_md-0.9.1-py3-none-macosx_11_0_universal2.whl --out outputs/새_배포검증
+uv run --frozen python scripts/verify_distribution.py --wheel dist/source_preserve_md-0.9.2-py3-none-macosx_11_0_universal2.whl --out outputs/새_배포검증
 ```
 
 검사 항목과 실제 실행 결과는 [VERIFICATION](docs/VERIFICATION.md), 독립 공유 저장소·ZIP 생성과 GitHub 반영 절차는 [SHARING](docs/SHARING.md), 경계는 [SECURITY](SECURITY.md)에 있습니다. `.github/workflows/ci.yml`은 업로드 후 실행할 자동 검사이며 로컬 검증과 구분합니다.

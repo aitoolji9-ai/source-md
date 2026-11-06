@@ -85,6 +85,9 @@ if sys.platform=='darwin':
  image=Image.new('RGB',(900,180),'white');draw=ImageDraw.Draw(image)
  font=ImageFont.truetype('/System/Library/Fonts/Supplemental/Arial.ttf',52)
  draw.text((30,50),'OCR INSTALL 84729',font=font,fill='black');image.save(inputs/'ocr.png')
+ from source_preserve_md.ocr import recognize
+ english=recognize(inputs/'ocr.png',language='en-US')
+ check('installed-english-native-language-option','OCRINSTALL84729' in ''.join(''.join(o['text'] for o in english['observations']).split()))
  folder=root/'actual-ocr';converted=convert(inputs/'ocr.png',folder)
  structure=json.loads((folder/'structure.json').read_text());unit=next(u for u in structure['units'] if u['metadata'].get('ocr_data'))
  check('actual-installed-ocr',converted['ocr_used'] and 'OCRINSTALL84729' in ''.join(unit['metadata']['ocr_text'].split()))

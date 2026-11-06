@@ -166,6 +166,34 @@ def test_short_isolated_word_keeps_page_context_when_retries_change_it():
     assert result['disagreements']==1
 
 
+def test_line_retry_cannot_append_ink_from_neighbouring_source_line():
+    from source_preserve_md.ocr_refine import refine_layout
+    image = Image.new('RGB', (300, 200), 'white')
+    original = '원래 첫번째 문장'
+    observations = [{'text': original, 'confidence': .5, 'bbox': [.1, .1, .7, .15]}]
+    def recognize_region(*args):
+        return {'observations': [
+            {'text': original, 'bbox': [.1, .3, .6, .2]},
+            {'text': '이웃행', 'bbox': [.1, .8, .2, .05]},
+        ]}
+    result = refine_layout(image, observations, recognize_region)
+    assert result['text'] == original
+    # Raw candidates stay available even though the neighbouring row is excluded.
+    assert result['line_refinements'][0]['passes'][0]['observations'][1]['text'] == '이웃행'
+
+
+def test_line_crop_agreement_cannot_extend_an_unchanged_original_sentence():
+    from source_preserve_md.ocr_refine import refine_layout
+    original = '첫번째 문장입니다'
+    image = Image.new('RGB', (300, 200), 'white')
+    observations = [{'text': original, 'confidence': .5, 'bbox': [.1,.1,.7,.15]}]
+    def repeat(*args):
+        return {'observations': [{'text': original+' 이웃행', 'bbox': [.1,.3,.7,.2]}]}
+    result = refine_layout(image, observations, repeat)
+    assert result['text'] == original
+    assert result['line_refinements'][0]['reason'] == 'candidate_extends_unchanged_source_text'
+
+
 @pytest.mark.skipif(sys.platform != "darwin", reason="Actual macOS OCR")
 def test_actual_image_table_renders_original_rows_columns_and_blanks(tmp_path):
     image = grid_image()

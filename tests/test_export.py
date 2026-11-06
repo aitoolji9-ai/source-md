@@ -20,3 +20,5 @@ def test_export_ignores_private_history_binding_and_unregistered_binary(tmp_path
     fixture = Path('tests/fixtures/shadowed-merged-table.png')
     assert (output/fixture).read_bytes() == (sandbox/fixture).read_bytes()
     assert (output/fixture.with_suffix('.json')).is_file()
+    assert (output/'scripts/benchmark_handwriting.py').is_file()
+    assert (output/'examples/handwriting-inputs/sources.json').is_file()

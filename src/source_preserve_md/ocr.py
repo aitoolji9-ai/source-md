@@ -44,9 +44,13 @@ def _binary() -> Path:
     return binary
 
 
-def recognize(path: Path, *, timeout: float = 30, correction: bool = False) -> dict:
+def recognize(path: Path, *, timeout: float = 30, correction: bool = False, language: str = '') -> dict:
+    if language not in ('', 'ko-KR', 'en-US'):
+        raise ValueError('Unsupported OCR language')
     binary = _binary()
     command = [str(binary), str(path)] + (["--language-correction"] if correction else [])
+    if language:
+        command.append('--language='+language)
     completed = subprocess.run(command, capture_output=True, timeout=timeout)
     if completed.returncode:
         raise RuntimeError(completed.stderr.decode(errors="replace")[:500] or "OCR 실행 실패")
@@ -86,12 +90,12 @@ def augment_ocr(result: Extraction, assets: Assets, mode: str, source_data: byte
     started = time.monotonic()
     completed_count = 0
 
-    def run_ocr(path, *, correction=False):
+    def run_ocr(path, *, correction=False, language=''):
         remaining = MAX_SECONDS-(time.monotonic()-started)
         if summary["requests"] >= MAX_REQUESTS or remaining <= 0:
             raise RuntimeError("OCR 재인식 요청 수 또는 시간 상한 도달")
         summary["requests"] += 1
-        return recognize(path, timeout=min(30,max(1,remaining)),correction=correction)
+        return recognize(path, timeout=min(30,max(1,remaining)),correction=correction,language=language)
 
     def process(png: bytes | None, locator: str, unit, *, native=None, rect=None, source_image=""):
         nonlocal completed_count
@@ -125,6 +129,13 @@ def augment_ocr(result: Extraction, assets: Assets, mode: str, source_data: byte
                 path.write_bytes(png)
                 summary["attempted"] = True
                 raw = run_ocr(path)
+                from .ocr_candidates import retry_latin_line
+                with Image.open(path) as original:
+                    line_image = original.convert('RGB')
+                def candidate_call(prepared, language, correction):
+                    prepared.save(path, 'PNG')
+                    return run_ocr(path, language=language, correction=correction)
+                raw = retry_latin_line(line_image, raw, candidate_call)
             summary["used"] = True
             raw["source_locator"] = locator
             raw["source_image"] = source_image
@@ -171,7 +182,7 @@ def augment_ocr(result: Extraction, assets: Assets, mode: str, source_data: byte
                 retry_path = Path(temp)/"region.png"
                 def retry(crop, correction):
                     crop.save(retry_path,"PNG")
-                    return run_ocr(retry_path,correction=correction)
+                    return run_ocr(retry_path,correction=correction,language=raw.get('recognition_language',''))
                 refined = refine_layout(image,raw["observations"],retry,skip_table_boxes=skip_boxes)
             raw["refinement"] = refined
             raw["initial_accepted_text"] = "\n".join(line["text"] for line in accepted)
@@ -204,6 +215,12 @@ def augment_ocr(result: Extraction, assets: Assets, mode: str, source_data: byte
                 result.warn("ocr_no_additional_text", "OCR에서 추가 글자가 검출되지 않았습니다. 이미지에 글자가 없다는 인증은 아닙니다.", locator)
             if refined["disagreements"]:
                 result.warn("ocr_disagreement", "재인식 결과가 엇갈리는 줄/셀이 있습니다. 첫 인식과 후보를 JSON에 보존했으며 원본 검토가 필요합니다.", locator)
+            latin = raw.get('latin_line_retry', {})
+            if latin.get('status') == 'selected' and not latin['candidates_agree']:
+                result.warn('ocr_disagreement', '영문 줄 재인식 후보가 다릅니다. 후보·선택 근거·처음 인식을 JSON에 보존했으며 원본 대조가 필요합니다.', locator)
+            if latin.get('issues'):
+                code = 'ocr_limit' if summary['requests'] >= MAX_REQUESTS or time.monotonic()-started >= MAX_SECONDS else 'ocr_refinement_failed'
+                result.warn(code, '영문 줄 재인식을 완료하지 못해 처음 인식을 보존했습니다.', locator)
             if refined["issues"]:
                 if summary["requests"] >= MAX_REQUESTS or time.monotonic()-started >= MAX_SECONDS:
                     result.warn("ocr_limit", "영역/셀 재인식 상한에 도달해 일부 구조가 미검사입니다.", locator)

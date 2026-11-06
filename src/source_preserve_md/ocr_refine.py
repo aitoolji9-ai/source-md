@@ -20,6 +20,29 @@ def _text(response):
     return '\n'.join(o['text'] for o in response.get('observations', []) if o.get('text','').strip())
 
 
+def _region_text(response, prepared_size, crop_box, source_box):
+    """Keep OCR centres within the source line, excluding neighbouring ink.
+
+    Retries keep padding for recognition context, not for appending another
+    source line. Coordinates invert the crop's actual resize and 24px border.
+    Raw observations remain untouched in the recorded response.
+    """
+    width, height = prepared_size
+    x0, y0, x1, y1 = crop_box
+    a, b, c, d = source_box
+    selected = []
+    for observation in response.get('observations', []):
+        bbox = observation.get('bbox')
+        if bbox is not None and len(bbox) == 4:
+            x, y, w, h = bbox
+            cx = x0 + ((x+w/2)*width-24)*(x1-x0)/max(1, width-48)
+            cy = y0 + ((y+h/2)*height-24)*(y1-y0)/max(1, height-48)
+            if not (a <= cx <= c and b <= cy <= d):
+                continue
+        selected.append(observation)
+    return _text({'observations': selected})
+
+
 def _crop(image, box, *, inset=0):
     x0,y0,x1,y1 = box
     box = [max(0,round(x0)+inset),max(0,round(y0)+inset),
@@ -161,19 +184,29 @@ def refine_layout(image: Image.Image, observations: list[dict], call, *, skip_ta
                 padded = [max(0,box[0]-5),max(0,box[1]-5),min(W,box[2]+5),min(H,box[3]+5)]
                 prepared,original,crop_box = _crop(image,padded)
                 a,b = call(prepared,False),call(prepared,True)
-                entry.update(passes=[a,b],crop_bbox=crop_box)
-                first,second = _text(a),_text(b)
+                entry.update(passes=[a,b],crop_bbox=crop_box,
+                             candidate_scope='centre_inside_original_line',source_bbox=box)
+                first = _region_text(a, prepared.size, crop_box, box)
+                second = _region_text(b, prepared.size, crop_box, box)
                 if first and compact(first)==compact(second):
                     if compact(first)!=compact(line['text']):
-                        third = call(_alternate(original),False)
-                        entry['alternate_scale_pass'] = third
-                        if compact(_text(third))==compact(first) and len(compact(line['text'])) >= 5:
-                            selected = first
-                            entry['status'] = 'agreement_changed'
+                        if compact(line['text']) in compact(first):
+                            # Agreement can repeat the same neighbouring fragment.
+                            # A crop is not authority to append text to a source
+                            # line that it already reproduces verbatim.
+                            entry.update(status='disagreement_keep_original',
+                                         reason='candidate_extends_unchanged_source_text')
                         else:
-                            entry['status'] = 'disagreement_keep_original'
-                            if len(compact(line['text'])) < 5:
-                                entry['reason'] = 'short_isolated_text_requires_page_context'
+                            alternate = _alternate(original)
+                            third = call(alternate,False)
+                            entry['alternate_scale_pass'] = third
+                            if compact(_region_text(third, alternate.size, crop_box, box))==compact(first) and len(compact(line['text'])) >= 5:
+                                selected = first
+                                entry['status'] = 'agreement_changed'
+                            else:
+                                entry['status'] = 'disagreement_keep_original'
+                                if len(compact(line['text'])) < 5:
+                                    entry['reason'] = 'short_isolated_text_requires_page_context'
                     else:
                         selected = first
                         entry['status'] = 'agreement_unchanged'

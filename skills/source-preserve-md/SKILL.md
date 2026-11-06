@@ -2,7 +2,7 @@
 name: source-preserve-md
 description: "호출명 마크다운 추출: 파일·웹페이지의 원문과 구조를 Markdown으로 추출·보존하고 이미지 문자는 로컬 OCR로 보완."
 metadata:
-  version: 0.9.0
+  version: 0.9.2
   platforms: [macos]
   hermes:
     tags: [markdown, 마크다운 추출, 마크다운, preservation, 원문결, 원문추출, local-ocr]
@@ -13,6 +13,8 @@ metadata:
 사용자가 “마크다운 추출 스킬로 이 글을 추출해줘”라고 하면 이 스킬을 사용한다. 기존 호출명 “원문결”도 같은 스킬을 가리킨다. 일반 Markdown 편집 요청까지 원문 추출로 확대하지 않는다.
 
 이 스킬은 설치된 `source-preserve-md` 엔진을 호출한다. 변환 로직을 대화에서 재작성하거나 생성형 AI로 본문을 보정하지 않는다. `scripts/run.py`가 프로젝트의 격리 Python으로 같은 CLI를 실행한다. 외부 생성형 모델 API나 OCR 서비스는 호출하지 않는다. 기본 `--ocr auto`는 macOS Apple Vision으로 이미지 글자를 로컬 인식한다. OCR 자체는 머신러닝을 사용할 수 있으므로 "AI를 전혀 쓰지 않는다"고 설명하지 않는다. 직접 추출만 원하면 `--ocr off`를 사용한다.
+
+짧고 불확실한 영문 줄은 엔진이 사전 보정을 끈 영어 전용 인식 3개를 비교할 수 있다. 이 경우 OCR JSON의 `initial_recognition`과 `latin_line_retry`에 처음 인식·후보·선택·좌표 변환·실패가 남는다. 실제 엔진 버전·JSON에 없는 보완 기능을 실행했다고 보고하지 않는다. 재인식 일치나 중간 후보 선택을 정확도 인증으로 설명하지 않는다. 한글 손글씨를 포함한 인식 한계와 원본 대조 필요는 유지하며, 스킬이 임의의 OCR 모델·가중치를 추가 설치하거나 원문 단어를 추측해 고치지 않는다.
 
 사용자가 머신러닝까지 금지하면 `--ocr off`를 적용한다. 외부 AI 서비스 없이 이미지 글자를 읽으려는 요청은 로컬 OCR 범위로 처리하고 사용 여부를 밝힌다.
 
