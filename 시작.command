@@ -7,7 +7,9 @@ if ! command -v uv >/dev/null 2>&1; then
   exit 1
 fi
 if [[ ! -x .venv/bin/python ]]; then
-  uv sync --frozen --python 3.12
+  sh install.sh
+else
+  sh install.sh --check-only
 fi
 exec uv run --frozen --offline preserve-md serve --open
 

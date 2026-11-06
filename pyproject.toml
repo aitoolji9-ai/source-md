@@ -1,10 +1,11 @@
 [build-system]
 requires = ["hatchling"]
-build-backend = "hatchling.build"
+build-backend = "_source_md_build"
+backend-path = ["."]
 
 [project]
 name = "source-preserve-md"
-version = "0.8.0"
+version = "0.9.0"
 readme = "README.md"
 license = "AGPL-3.0-only"
 license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
@@ -40,6 +41,9 @@ preserve-md = "source_preserve_md.cli:main"
 [tool.hatch.build.targets.wheel]
 packages = ["src/source_preserve_md"]
 
+[tool.hatch.build.targets.wheel.hooks.custom]
+path = "_source_md_wheel.py"
+
 [tool.hatch.build.targets.wheel.force-include]
 "skills/source-preserve-md/SKILL.md" = "source_preserve_md/skill/SKILL.md"
 "skills/source-preserve-md/scripts/run.py" = "source_preserve_md/skill/scripts/run.py"
@@ -50,7 +54,7 @@ packages = ["src/source_preserve_md"]
 [tool.hatch.build.targets.sdist]
 include = ["/src", "/skills", "/tests", "/scripts", "/examples/legacy-inputs", "/examples/quality-inputs/sources.json", "/examples/quality-inputs/python-controlflow.html", "/examples/quality-inputs/PYTHON_LICENSE.txt", "/examples/구조보존_시험.html", "/docs", "/README.md", "/LICENSE", "/THIRD_PARTY_NOTICES.md", "/pyproject.toml", "/uv.lock", "/시작.command"]
 exclude = ["**/__pycache__", "**/.engine.json"]
-artifacts = ["/SECURITY.md", "/.github/workflows/ci.yml"]
+artifacts = ["/SECURITY.md", "/.github/workflows/ci.yml", "/install.sh", "/_source_md_build.py", "/_source_md_wheel.py"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

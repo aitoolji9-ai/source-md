@@ -6,13 +6,34 @@ on:
 permissions:
   contents: read
 jobs:
-  test:
+  macos:
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
+        with:
+          version: '0.12.19'
+      - run: sh install.sh --dev
+      - run: uv run --frozen preserve-md preflight
+      - run: uv run --frozen pytest -q -m 'not browser'
+      - run: uv build
+      - run: uv run --frozen python scripts/verify_distribution.py --wheel dist/source_preserve_md-0.9.0-py3-none-macosx_11_0_universal2.whl --out outputs/wheel-verification
+      - run: uv run --frozen python -m playwright install chromium
+      - run: uv run --frozen pytest -q -m browser
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: macos-installation-evidence
+          path: |
+            outputs/wheel-verification/verification.json
+  unsupported-os:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
@@ -21,30 +42,27 @@ jobs:
       - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
         with:
           version: '0.12.19'
-          enable-cache: true
-      - run: uv sync --frozen --extra dev
-      - run: uv run --frozen pytest -q -m 'not browser'
-      - run: uv build
-      - run: uv run --frozen python scripts/verify_distribution.py --wheel dist/source_preserve_md-0.8.0-py3-none-any.whl --out outputs/wheel-verification
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        if: always()
-        with:
-          name: verification-${{ matrix.os }}
-          path: |
-            outputs/wheel-verification/verification.json
-            outputs/wheel-verification/commands.log
-            dist/
-  browser:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
-        with:
-          version: '0.12.19'
-      - run: uv sync --frozen --extra dev --python 3.12
-      - run: uv run --frozen python -m playwright install --with-deps chromium
-      - run: uv run --frozen pytest -q -m browser
+      - run: python -m unittest discover -s tests -p test_preflight_bootstrap.py
+      - name: Refuse official installer before environment creation
+        shell: bash
+        run: |
+          set +e
+          sh install.sh --check-only > refusal.log 2>&1
+          result=$?
+          set -e
+          cat refusal.log
+          test "$result" -eq 2
+          test ! -e .venv
+      - name: Refuse direct editable source installation
+        shell: bash
+        run: |
+          set +e
+          uv sync --frozen --python 3.12 > direct-refusal.log 2>&1
+          result=$?
+          set -e
+          cat direct-refusal.log
+          test "$result" -ne 0
+          grep 'Source MD' direct-refusal.log
   dependencies:
     runs-on: ubuntu-latest
     timeout-minutes: 10

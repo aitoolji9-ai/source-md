@@ -1,3 +1,5 @@
+> 이 문서는 0.8.0의 공개 검증 기록이다. 현재 0.9.0은 macOS/실제 OCR 필수 설치 정책이며 Linux 설치는 허용하지 않는다. [현행 설치 검사](INSTALLATION_GATE.md)
+
 # 공개 저장소 설치 검증 — 2026-11-06
 
 공개 저장소: [aitoolji9-ai/source-md](https://github.com/aitoolji9-ai/source-md).

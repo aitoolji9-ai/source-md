@@ -34,6 +34,7 @@ def main(argv=None) -> int:
     serving.add_argument("--output-root", type=Path, default=Path("outputs"))
     commands.add_parser("formats", help="지원 범위 출력")
     commands.add_parser('doctor', help='로컬 의존성·스킬 파일 확인(설치/다운로드 없음)')
+    commands.add_parser('preflight', help='필수 설치 환경과 실제 로컬 OCR 검사; 미충족 시 종료 2')
     skill = commands.add_parser('install-skill', help='같은 엔진을 호출하는 스킬을 새 폴더에 설치')
     skill.add_argument('--target', type=Path, required=True, help='호스트가 읽을 새 스킬 폴더; 기존 스킬 덮어쓰기 없음')
     capture=commands.add_parser('capture-tool',help='AI 없이 열린 웹 탭 DOM을 저장하는 오프라인 북마크 도우미 생성')
@@ -44,6 +45,13 @@ def main(argv=None) -> int:
     correction.add_argument('--out',type=Path,required=True)
     args = parser.parse_args(argv)
     try:
+        if args.command == 'preflight':
+            from .preflight import inspect_environment
+            result=inspect_environment();print(json.dumps(result,ensure_ascii=False,indent=2))
+            return 0 if result['passed'] else 2
+        if args.command in ('convert','serve','correct','capture-tool'):
+            from .preflight import require_environment
+            require_environment()
         if args.command == 'doctor':
             from .integration import doctor
             print(json.dumps(doctor(), ensure_ascii=False, indent=2))
@@ -86,7 +94,7 @@ def main(argv=None) -> int:
         if args.command == "formats":
             print("직접 추출: MD/TXT/코드/JSON/XML/YAML/CSV/TSV/HTML/PDF/DOCX/PPTX/XLSX/XLSM/EPUB/MHTML\n로컬 변환: HWP5(본문·표·이미지·각주/미주), DOC/XLS/PPT(격리 LibreOffice→OOXML)\n부분 추출: ODF(본문·표·패키지), HWPX(텍스트·패키지), RTF(텍스트), SVG(코드·안전 렌더), 이미지(프레임·원본·로컬 OCR)\nOCR: macOS Apple Vision, 기본 auto. 격자선·일부 정렬 표, 제한 범위의 기울기/선 끊김 보완. --ocr off로 끌 수 있음\n본문 미지원: 암호/배포 HWP·미지원 구형 변형·음성·영상·임의 바이너리(원본 보관 또는 명시 실패)\n모든 형식: 시각·의미 완전성은 자동 인증하지 않음. 외부 생성형 AI API 호출 없음.")
         return 0
-    except (ConversionError, OSError, ValueError) as e:
+    except (ConversionError, OSError, ValueError, RuntimeError) as e:
         print(json.dumps({"status": "failed", "error": str(e)}, ensure_ascii=False))
         return 2
 

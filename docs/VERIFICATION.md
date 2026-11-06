@@ -1,3 +1,5 @@
+> 아래 수치와 OS 지원은 0.8.0 검증 당시의 결과다. 현행 0.9.0의 필수 환경/설치 거부 검사는 [INSTALLATION_GATE](INSTALLATION_GATE.md)를 따른다.
+
 # Verification — 0.8.0
 
 검증일: 2026-11-06. 실제 환경: macOS, Python 3.12.14, uv 0.12.19, Pillow 13.0.0. 프로그램·스킬 버전을 0.8.0으로 통일했다. [검사 집계·소스 해시](verification.json), [재현 명령](SHARING.md)을 함께 제공한다.

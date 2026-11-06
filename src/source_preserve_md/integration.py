@@ -26,6 +26,9 @@ def skill_source() -> Path:
 
 
 def install_skill(target: Path | str) -> dict:
+    from .preflight import require_environment
+    try:require_environment()
+    except RuntimeError as error:raise ConversionError(str(error)) from error
     source = skill_source()
     target = Path(target).expanduser().absolute()
     if os.path.lexists(target):
@@ -56,7 +59,9 @@ def doctor() -> dict:
         playwright = True
     except importlib.metadata.PackageNotFoundError:
         playwright = False
+    from .preflight import inspect_environment
     return {'version': __version__, 'python': sys.version.split()[0], 'platform': sys.platform,
+            'mandatory_environment': inspect_environment(native=False),
             'generative_ai_calls': 0, 'skill_files_available': all((skill_source()/name).is_file() for name in SKILL_FILES),
             'ocr': {'prerequisites_present': ocr, 'engine': 'apple-vision', 'actual_recognition_tested': False,
                     'setup': 'macOS + Xcode Command Line Tools (xcode-select --install)'},

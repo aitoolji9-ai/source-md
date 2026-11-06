@@ -1,10 +1,10 @@
 # 원문결 · Source MD
 
-파일·공개 웹페이지의 원문, 순서, 표, 코드, 이미지와 출처를 Markdown으로 추출하는 로컬 프로그램입니다. 사용자 화면·CLI·Codex/Hermes 스킬이 같은 엔진을 사용합니다. 버전 **0.8.0**.
+파일·공개 웹페이지의 원문, 순서, 표, 코드, 이미지와 출처를 Markdown으로 추출하는 로컬 프로그램입니다. 사용자 화면·CLI·Codex/Hermes 스킬이 같은 엔진을 사용합니다. 버전 **0.9.0**.
 
 영문 프로젝트명은 **Source MD**, GitHub 저장소 이름은 `source-md`입니다. 설치 패키지·스킬 이름은 `source-preserve-md`, 실행 명령은 `preserve-md`를 사용합니다.
 
-[프로그램 다운로드](https://github.com/aitoolji9-ai/source-md/releases/tag/v0.8.0) · [설치·사용 검증 결과](docs/PUBLISHED_VERIFICATION.md) · [스킬 설치](#스킬로-설치)
+[프로그램 다운로드](https://github.com/aitoolji9-ai/source-md/releases/tag/v0.9.0) · [필수 환경·설치 검사](docs/INSTALLATION_GATE.md) · [스킬 설치](#스킬로-설치)
 
 PDF·한글·워드·엑셀·파워포인트·웹페이지를 다음 작업에 재사용하려는 사람에게 적합합니다. 프로그램 화면으로 직접 사용하거나, 설치한 스킬을 Codex·Hermes에서 호출할 수 있습니다.
 
@@ -14,7 +14,17 @@ MD만으로 모든 글꼴·배치·도형·대화형 동작을 복제할 수는 
 
 ## 설치와 실행
 
-아래는 **처음 설치하는 macOS 사용자 기준**입니다. macOS의 실제 설치·OCR 사용과 Ubuntu의 기본 추출·스킬·브라우저 수집을 검증했습니다. 이미지 글자 OCR은 macOS 전용입니다. 최초 설치에는 네트워크가 필요합니다.
+아래는 **처음 설치하는 macOS 사용자 기준**입니다. 0.9.0부터 기본 로컬 OCR을 필수로 하므로 **Linux·Windows에서는 설치를 중단합니다.** 최초 설치에는 네트워크가 필요합니다. 0.8.0의 Linux 검증 기록은 이전 버전의 결과입니다.
+
+### 0. 필수 환경 — 미충족 시 설치 중단
+
+- macOS, 64비트 Apple Silicon 또는 Intel Mac
+- Swift/Xcode Command Line Tools
+- Python 3.12 이상: 설치기가 uv로 Python 3.12를 준비합니다.
+- 한국어·영어 Apple Vision OCR: 실제 시험 이미지의 인식까지 통과해야 합니다.
+- 설치 위치의 여유 공간 1GiB 이상: Python·의존성·캐시·임시파일을 위한 설치 정책입니다. 문서 변환 결과를 저장할 공간은 별도로 필요합니다.
+
+`install.sh`가 먼저 검사하고 **모든 필수 항목이 통과한 뒤에만** 프로젝트 환경과 패키지를 설치합니다. 실패하면 종료 코드 2와 부족한 항목/해결 방법을 표시합니다. 검사를 건너뛰는 설치 옵션은 제공하지 않습니다. `doctor`의 도구 존재 확인과 실제 OCR을 실행하는 `preflight`는 구분합니다.
 
 ### 1. 처음 한 번 준비하기
 
@@ -34,12 +44,13 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ### 2. 프로그램 설치하고 열기
 
-새로 설치할 위치에서 아래 명령을 한 줄씩 실행합니다. `uv sync`가 지정한 Python과 필요한 패키지를 준비합니다.
+새로 설치할 위치에서 아래 명령을 한 줄씩 실행합니다. `install.sh`가 필수 환경을 검사하고, 통과하면 Python과 필요한 패키지를 준비합니다.
 
 ```sh
 git clone https://github.com/aitoolji9-ai/source-md.git
 cd source-md
-uv sync --frozen --python 3.12
+sh install.sh
+uv run --frozen preserve-md preflight
 uv run --frozen preserve-md doctor
 uv run --frozen preserve-md serve --open
 ```
@@ -56,7 +67,7 @@ uv run --frozen preserve-md serve --open
 
 ### ZIP으로 받는 경우
 
-[다운로드 페이지](https://github.com/aitoolji9-ai/source-md/releases/tag/v0.8.0)에서 **`source-preserve-md-0.8.0-repository.zip`**을 받아 압축을 풉니다. 터미널에서 압축을 푼 프로젝트 폴더로 이동한 뒤 위 명령 중 `uv sync`부터 실행하면 됩니다. `.whl`은 Python용 설치 패키지이며, ZIP과 같은 전체 소스 폴더가 아닙니다.
+[다운로드 페이지](https://github.com/aitoolji9-ai/source-md/releases/tag/v0.9.0)에서 **`source-md-0.9.0-repository.zip`**을 받아 압축을 풉니다. 터미널에서 압축을 푼 프로젝트 폴더로 이동한 뒤 압축을 푼 `source-md` 폴더에서 `sh install.sh`부터 실행하면 됩니다. 0.9.0 공식 배포는 사전 검사를 거치는 소스 ZIP/소스 배포본입니다. 설치 단계 검사를 실행할 수 없는 미리 빌드된 wheel은 공식 다운로드로 제공하지 않습니다.
 
 ### 추가 기능 준비
 
@@ -70,7 +81,7 @@ uv run --frozen preserve-md serve --open
 uv run --frozen python -m playwright install chromium
 ```
 
-다른 운영체제의 실제 검증 범위는 [검증 문서](docs/VERIFICATION.md)를 확인하세요. 개인 브라우저의 로그인 정보는 가져오지 않습니다.
+필수 환경·설치 거부 검증 범위는 [검증 문서](docs/INSTALLATION_GATE.md)를 확인하세요. 개인 브라우저의 로그인 정보는 가져오지 않습니다.
 
 ## 사용
 
@@ -122,7 +133,7 @@ uv run --frozen --offline preserve-md correct 기존_묶음 --corrections ocr-co
 
 ## 스킬로 설치
 
-**프로그램을 먼저 설치한 뒤**, 터미널에서 `source-md` 프로젝트 폴더로 이동합니다. 사용하는 도구에 맞는 명령을 실행합니다. Codex·Hermes 자체 설치는 별도입니다.
+**프로그램을 먼저 설치한 뒤**, 터미널에서 설치한 프로젝트 폴더로 이동합니다. 프로그램이 실행 중인 터미널은 명령 입력을 받지 않으므로 **새 터미널 창**을 사용하거나, 기존 창에서 `Ctrl+C`로 프로그램을 종료한 뒤 설치하세요. 홈 폴더에 복제했다면 `cd ~/source-md`로 이동합니다. 사용하는 도구에 맞는 명령을 실행합니다. Codex·Hermes 자체 설치는 별도입니다.
 
 ### Codex
 
@@ -184,10 +195,10 @@ python3 ~/.hermes/skills/source-preserve-md/scripts/run.py doctor
 [공개 저장소에서 내려받아 설치한 검증 결과](docs/PUBLISHED_VERIFICATION.md)와 [GitHub Actions](https://github.com/aitoolji9-ai/source-md/actions/workflows/ci.yml)를 확인할 수 있습니다.
 
 ```sh
-uv sync --frozen --extra dev
+sh install.sh --dev
 uv run --frozen pytest -q -m 'not browser'
 uv build
-uv run --frozen python scripts/verify_distribution.py --wheel dist/source_preserve_md-0.8.0-py3-none-any.whl --out outputs/새_배포검증
+uv run --frozen python scripts/verify_distribution.py --wheel dist/source_preserve_md-0.9.0-py3-none-macosx_11_0_universal2.whl --out outputs/새_배포검증
 ```
 
 검사 항목과 실제 실행 결과는 [VERIFICATION](docs/VERIFICATION.md), 독립 공유 저장소·ZIP 생성과 GitHub 반영 절차는 [SHARING](docs/SHARING.md), 경계는 [SECURITY](SECURITY.md)에 있습니다. `.github/workflows/ci.yml`은 업로드 후 실행할 자동 검사이며 로컬 검증과 구분합니다.
