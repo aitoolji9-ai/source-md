@@ -67,7 +67,7 @@ uv run --frozen preserve-md serve --open
 
 ### ZIP으로 받는 경우
 
-[다운로드 페이지](https://github.com/aitoolji9-ai/source-md/releases/tag/v0.9.4)에서 **`source-md-v0.9.4.zip`**을 받아 압축을 풉니다. 터미널에서 압축을 푼 프로젝트 폴더로 이동한 뒤 압축을 푼 `source-md` 폴더에서 `sh install.sh`부터 실행하면 됩니다. 현재 공식 배포는 사전 검사를 거치는 소스 ZIP/소스 배포본입니다. 설치 단계 검사를 실행할 수 없는 미리 빌드된 wheel은 공식 다운로드로 제공하지 않습니다.
+[다운로드 페이지](https://github.com/aitoolji9-ai/source-md/releases/tag/v0.9.4)에서 **`source-md-v0.9.4.zip`**을 받아 압축을 풉니다. 터미널에서 압축을 푼 `source-md-v0.9.4` 폴더로 이동한 뒤 `sh install.sh`부터 실행하면 됩니다. 현재 공식 배포는 사전 검사를 거치는 소스 ZIP/소스 배포본입니다. 설치 단계 검사를 실행할 수 없는 미리 빌드된 wheel은 공식 다운로드로 제공하지 않습니다.
 
 ### 추가 기능 준비
 
