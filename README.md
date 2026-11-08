@@ -1,10 +1,10 @@
 # 원문결 · Source MD
 
-파일·공개 웹페이지의 원문, 순서, 표, 코드, 이미지와 출처를 Markdown으로 추출하는 로컬 프로그램입니다. 사용자 화면·CLI·Codex/Hermes 스킬이 같은 엔진을 사용합니다. 버전 **0.9.4**.
+파일·공개 웹페이지의 원문, 순서, 표, 코드, 이미지와 출처를 Markdown으로 추출하는 로컬 프로그램입니다. 사용자 화면·CLI·Codex/Hermes 스킬이 같은 엔진을 사용합니다. 버전 **0.9.5**.
 
 영문 프로젝트명은 **Source MD**, GitHub 저장소 이름은 `source-md`입니다. 설치 패키지·스킬 이름은 `source-preserve-md`, 실행 명령은 `preserve-md`를 사용합니다.
 
-[프로그램 다운로드](https://github.com/aitoolji9-ai/source-md/releases/tag/v0.9.4) · [필수 환경·설치 검사](docs/INSTALLATION_GATE.md) · [스킬 설치](#스킬로-설치)
+[프로그램 다운로드](https://github.com/aitoolji9-ai/source-md/releases/tag/v0.9.5) · [필수 환경·설치 검사](docs/INSTALLATION_GATE.md) · [스킬 설치](#스킬로-설치)
 
 PDF·한글·워드·엑셀·파워포인트·웹페이지를 다음 작업에 재사용하려는 사람에게 적합합니다. 프로그램 화면으로 직접 사용하거나, 설치한 스킬을 Codex·Hermes에서 호출할 수 있습니다.
 
@@ -67,7 +67,7 @@ uv run --frozen preserve-md serve --open
 
 ### ZIP으로 받는 경우
 
-[다운로드 페이지](https://github.com/aitoolji9-ai/source-md/releases/tag/v0.9.4)에서 **`source-md-v0.9.4.zip`**을 받아 압축을 풉니다. 터미널에서 압축을 푼 `source-md-v0.9.4` 폴더로 이동한 뒤 `sh install.sh`부터 실행하면 됩니다. 현재 공식 배포는 사전 검사를 거치는 소스 ZIP/소스 배포본입니다. 설치 단계 검사를 실행할 수 없는 미리 빌드된 wheel은 공식 다운로드로 제공하지 않습니다.
+[다운로드 페이지](https://github.com/aitoolji9-ai/source-md/releases/tag/v0.9.5)에서 **`source-md-v0.9.5.zip`**을 받아 압축을 풉니다. 터미널에서 압축을 푼 `source-md-v0.9.5` 폴더로 이동한 뒤 `sh install.sh`부터 실행하면 됩니다. 현재 공식 배포는 사전 검사를 거치는 소스 ZIP/소스 배포본입니다. 설치 단계 검사를 실행할 수 없는 미리 빌드된 wheel은 공식 다운로드로 제공하지 않습니다.
 
 ### 추가 기능 준비
 
@@ -84,6 +84,8 @@ uv run --frozen python -m playwright install chromium
 필수 환경·설치 거부 검증 범위는 [검증 문서](docs/INSTALLATION_GATE.md)를 확인하세요. 개인 브라우저의 로그인 정보는 가져오지 않습니다.
 
 ## 사용
+
+여러 PDF나 Hermes 장시간 작업은 `preserve-md batch 원본PDF폴더 --out 새_결과루트`로 한 번에 처리하고, 같은 루트에 `status`/`resume`을 사용합니다. [Hermes 한도·백그라운드·재개 안내](docs/HERMES_LIMITS.md)를 확인하세요. 대화 초기화나 모델 한도 확대 없이 저장된 작업을 이어갈 수 있습니다.
 
 ### 화면에서 사용하기
 

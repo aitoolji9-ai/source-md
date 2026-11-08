@@ -35,6 +35,11 @@ def main(argv=None) -> int:
     resume=commands.add_parser('resume',help='원본 해시·페이지 체크포인트를 검증하고 PDF 미처리 부분만 재개')
     resume.add_argument('folder',type=Path)
     resume.add_argument('--max-pages',type=int)
+    batch=commands.add_parser('batch',help='폴더 바로 아래 PDF를 한 번의 유한한 작업으로 변환·저장; 같은 루트에 status/resume')
+    batch.add_argument('folder',type=Path)
+    batch.add_argument('--out',type=Path,required=True)
+    batch.add_argument('--max-pages',type=int)
+    batch.add_argument('--ocr-detail',choices=('text','full'),default='text')
     validation = commands.add_parser("validate", help="결과 묶음을 재조회해 저장 무결성 검사")
     validation.add_argument("folder", type=Path)
     serving = commands.add_parser("serve", help="로컬 사용자 화면 실행")
@@ -58,11 +63,19 @@ def main(argv=None) -> int:
             from .preflight import inspect_environment
             result=inspect_environment();print(json.dumps(result,ensure_ascii=False,indent=2))
             return 0 if result['passed'] else 2
-        if args.command in ('convert','resume','serve','correct','capture-tool'):
+        if args.command in ('convert','resume','batch','serve','correct','capture-tool'):
             from .preflight import require_environment
             require_environment()
         def page_progress(event):
             print(json.dumps({'pdf_progress':event},ensure_ascii=False),file=__import__('sys').stderr,flush=True)
+        if args.command=='batch' or (args.command in ('status','resume') and (args.folder/'batch-job.json').is_file()):
+            from .pdf_batch import start_batch,resume_batch,status_batch
+            if args.command=='batch':result=start_batch(args.folder,args.out,max_pages=args.max_pages,detail=args.ocr_detail,progress=page_progress)
+            elif args.command=='resume':result=resume_batch(args.folder,max_pages=args.max_pages,progress=page_progress)
+            else:result=status_batch(args.folder)
+            print(json.dumps(result,ensure_ascii=False,indent=2))
+            if args.command=='status':return 0
+            return 2 if any(b.get('error') for b in result['books']) else 0 if result['complete'] else 3
         if args.command=='inventory':
             from .pdf_job import inventory_pdf
             print(json.dumps(inventory_pdf(args.folder),ensure_ascii=False,indent=2))

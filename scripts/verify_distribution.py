@@ -25,7 +25,7 @@ def verify(wheel: Path, out: Path, require_office=False):
     run(['uv','pip','install','--python',python,'-r',requirements,wheel.resolve()])
     # This code runs using the installed wheel, from outside the source tree.
     code=r'''
-import io,json,subprocess,sys,zipfile
+import io,json,os,shutil,subprocess,sys,zipfile
 from pathlib import Path
 from bs4 import BeautifulSoup
 from docx import Document
@@ -128,6 +128,19 @@ if sys.platform=='darwin':
  check('installed-pdf-reuses-completed-pages',[entry['page'] for entry in state['history']]==[1,2,3] and len(list((folder/'source').glob('*.pdf')))==1)
  status=subprocess.run([sys.executable,str(skill/'scripts/run.py'),'status',str(folder)],capture_output=True,text=True)
  check('installed-pdf-readonly-status',status.returncode==0 and json.loads(status.stdout)['complete'] and not json.loads(status.stdout)['writer_active'])
+
+ batch_inputs=root/'batch-inputs';batch_inputs.mkdir()
+ for name in ('01.pdf','02.pdf'):shutil.copyfile(inputs/'resumable.pdf',batch_inputs/name)
+ batch_root=root/'batch-output'
+ batch_first=subprocess.run([sys.executable,str(skill/'scripts/run.py'),'batch',str(batch_inputs),'--out',str(batch_root),'--max-pages','2'],capture_output=True,text=True)
+ check('installed-batch-checkpoint-exit3',batch_first.returncode==3 and json.loads(batch_first.stdout)['checkpointed_pages']==2)
+ checkpoint=(batch_root/'01/checkpoint/pages/0001.json').read_bytes()
+ poison=root/'host-python';poison.mkdir();(poison/'source_preserve_md.py').write_text("raise RuntimeError('HOST PYTHONPATH LEAKED')")
+ batch_resume=subprocess.run([sys.executable,str(skill/'scripts/run.py'),'resume',str(batch_root)],env={**os.environ,'PYTHONPATH':str(poison)},capture_output=True,text=True)
+ batch=json.loads(batch_resume.stdout)
+ check('installed-skill-batch-with-host-pythonpath',batch_resume.returncode==0 and batch['complete'] and batch['books_complete']==2 and batch['checkpointed_pages']==6 and checkpoint==(batch_root/'01/checkpoint/pages/0001.json').read_bytes())
+ batch_status=subprocess.run([sys.executable,str(skill/'scripts/run.py'),'status',str(batch_root)],capture_output=True,text=True)
+ check('installed-batch-merges-and-reuses-pages',json.loads(batch_status.stdout)['complete'] and all(validate_bundle(batch_root/name)['passed'] and [e['page'] for e in json.loads((batch_root/name/'pdf-job.json').read_text())['history']]==[1,2,3] for name in ['01','02']))
 
 # Installed wheel's live Flask routes and download bytes, without source checkout imports.
 app=create_app(root/'web-outputs');client=app.test_client();token=client.get('/api/config').json['token']

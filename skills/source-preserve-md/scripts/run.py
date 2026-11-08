@@ -34,8 +34,9 @@ def main():
     except (OSError, ValueError, KeyError, TypeError) as error:
         print(str(error), file=sys.stderr)
         return 2
-    # Preserve the caller's cwd: relative input/output paths keep their meaning.
-    return subprocess.run([str(python), '-m', 'source_preserve_md', *sys.argv[1:]]).returncode
+    # Host agents can export another Python version's site-packages in PYTHONPATH.
+    # Isolate imports while preserving cwd for relative document input/output paths.
+    return subprocess.run([str(python), '-I', '-m', 'source_preserve_md', *sys.argv[1:]]).returncode
 
 
 if __name__ == "__main__":
