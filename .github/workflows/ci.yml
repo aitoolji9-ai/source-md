@@ -18,7 +18,7 @@ jobs:
       - run: uv run --frozen preserve-md preflight
       - run: uv run --frozen pytest -q -m 'not browser'
       - run: uv build
-      - run: uv run --frozen python scripts/verify_distribution.py --wheel dist/source_preserve_md-0.9.3-py3-none-macosx_11_0_universal2.whl --out outputs/wheel-verification
+      - run: uv run --frozen python scripts/verify_distribution.py --wheel dist/source_preserve_md-0.9.4-py3-none-macosx_11_0_universal2.whl --out outputs/wheel-verification
       - run: uv run --frozen python -m playwright install chromium
       - run: uv run --frozen pytest -q -m browser
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

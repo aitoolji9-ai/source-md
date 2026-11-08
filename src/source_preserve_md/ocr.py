@@ -80,7 +80,9 @@ def is_native_duplicate(line: dict, native: list[dict]) -> bool:
     return bool(value and overlapping and value == _normalized("".join(overlapping)))
 
 
-def augment_ocr(result: Extraction, assets: Assets, mode: str, source_data: bytes) -> dict:
+def augment_ocr(result: Extraction, assets: Assets, mode: str, source_data: bytes, *, detail="full", page_indices=None, initials=None) -> dict:
+    if detail not in ("text","full"):
+        raise ConversionError("OCR 세부 모드는 text 또는 full이어야 합니다.")
     if mode not in ("auto", "off"):
         raise ConversionError("OCR 옵션은 auto 또는 off여야 합니다.")
     summary = {"mode": mode, "engine": "apple-vision", "used": False, "attempted": False,
@@ -116,7 +118,8 @@ def augment_ocr(result: Extraction, assets: Assets, mode: str, source_data: byte
             from PIL import Image
             from .raster_layout import deskew_for_grid
             deskew={'angle':0}
-            if not native:
+            supplied=(initials or {}).get(locator)
+            if not native and detail=='full' and supplied is None:
                 with Image.open(io.BytesIO(png)) as initial_image:
                     aligned,deskew=deskew_for_grid(initial_image.convert('RGB'))
                 if deskew['angle']:
@@ -128,14 +131,15 @@ def augment_ocr(result: Extraction, assets: Assets, mode: str, source_data: byte
                 path = Path(temp) / "input.png"
                 path.write_bytes(png)
                 summary["attempted"] = True
-                raw = run_ocr(path)
+                raw = __import__("copy").deepcopy(supplied) if supplied is not None else run_ocr(path)
                 from .ocr_candidates import retry_latin_line
                 with Image.open(path) as original:
                     line_image = original.convert('RGB')
                 def candidate_call(prepared, language, correction):
                     prepared.save(path, 'PNG')
                     return run_ocr(path, language=language, correction=correction)
-                raw = retry_latin_line(line_image, raw, candidate_call)
+                if detail=="full" and supplied is None:
+                    raw = retry_latin_line(line_image, raw, candidate_call)
             summary["used"] = True
             raw["source_locator"] = locator
             raw["source_image"] = source_image
@@ -183,7 +187,13 @@ def augment_ocr(result: Extraction, assets: Assets, mode: str, source_data: byte
                 def retry(crop, correction):
                     crop.save(retry_path,"PNG")
                     return run_ocr(retry_path,correction=correction,language=raw.get('recognition_language',''))
-                refined = refine_layout(image,raw["observations"],retry,skip_table_boxes=skip_boxes)
+                if detail=="text":
+                    from .ocr_refine import text_layout
+                    refined=text_layout(image,raw["observations"],skip_table_boxes=skip_boxes)
+                else:
+                    refined = refine_layout(image,raw["observations"],retry,skip_table_boxes=skip_boxes)
+            if refined.get("geometry_notice"):
+                result.warn("ocr_layout_fallback","구조 분석을 완료하지 못해 초기 OCR 글자·좌표를 보존했습니다. 원본 대조가 필요합니다.",locator)
             raw["refinement"] = refined
             raw["initial_accepted_text"] = "\n".join(line["text"] for line in accepted)
             raw["accepted_text"] = refined["text"]
@@ -233,7 +243,9 @@ def augment_ocr(result: Extraction, assets: Assets, mode: str, source_data: byte
     if result.format == "pdf":
         import pymupdf
         with pymupdf.open(stream=source_data, filetype="pdf") as doc:
-            for index, page in enumerate(doc):
+            indices=range(len(doc)) if page_indices is None else page_indices
+            for index in indices:
+                page=doc[index]
                 unit = result.units[index]
                 # Inspect each page, including mixed pages with an existing text layer.
                 image_info = page.get_image_info()
@@ -259,10 +271,10 @@ def augment_ocr(result: Extraction, assets: Assets, mode: str, source_data: byte
                         transform = info.get("transform",(1,0,0,1,0,0))
                         if box.width > 0 and box.height > 0 and box.get_area() >= page.rect.get_area()*.2 and abs(transform[1]) < .01 and abs(transform[2]) < .01:
                             dominant.append((box.get_area(),min(info["width"]/box.width,info["height"]/box.height)))
-                    if dominant:
+                    if dominant and page_indices is None:
                         scale = min(scale,max(dominant)[1])
                     unit.metadata["ocr_render_scale"] = scale
-                    unit.metadata["ocr_render_basis"] = "bounded by dominant raster native pixel density" if dominant else "300dpi capped by max edge"
+                    unit.metadata["ocr_render_basis"] = "bounded by dominant raster native pixel density" if dominant and page_indices is None else "300dpi capped by max edge"
                     png = page.get_pixmap(matrix=pymupdf.Matrix(scale, scale), alpha=False).tobytes("png")
                     local = assets.add(png, f"page-{index+1:04d}-ocr-input.png", unit.source_locator)
                 process(png, unit.source_locator, unit, native=native, rect=list(page.rect), source_image=local)

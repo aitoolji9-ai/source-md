@@ -55,7 +55,7 @@ def checked_zip(data: bytes) -> zipfile.ZipFile:
 
 def detect(data: bytes, filename: str, content_type: str = "") -> str:
     ext = Path(filename).suffix.lower().lstrip(".")
-    if data.startswith(b"%PDF-"):
+    if data.startswith(b"%PDF-") or (ext=="pdf" and re.search(rb"(?m)^%PDF-[0-9]\.[0-9]",data[:1024])):
         return "pdf"
     if data.startswith(b"PK"):
         with checked_zip(data) as z:
@@ -515,6 +515,15 @@ def pdf_extract(data: bytes, result: Extraction, assets: Assets) -> None:
             label = f"페이지 {index+1}"
             locator = f"page:{index+1}"
             raw = page.get_text("dict", sort=False)
+            # Image bytes are separate assets; embedding their byte repr in
+            # layout JSON duplicated hundreds of MB in screenshot-heavy books.
+            for block_no,block in enumerate(raw.get('blocks',[])):
+                for field in ('image','mask'):
+                    payload=block.get(field)
+                    if isinstance(payload,bytes):
+                        ref=assets.add(payload,f"page-{index+1}-block-{block_no}-{field}."+block.get('ext','bin'),locator)
+                        block[field+'_asset']=ref
+                        del block[field]
             raw_asset = assets.json(f"page-{index+1:04d}-layout.json", raw, locator)
             # PDF producer order, not an invented reading order. Coordinates remain available.
             text = page.get_text("text", sort=False)

@@ -97,6 +97,8 @@ class Assets:
         filename = f"{digest[:16]}-{safe_name(name)}"
         relative = "assets/" + filename
         path = self.root / relative
+        if path.exists() and sha256(path.read_bytes()) != digest:
+            raise ConversionError("기존 자산 해시가 달라 덮어쓰지 않았습니다.")
         if not path.exists():
             if self.total_bytes + len(data) > 500 * 1024 * 1024 or len(self.records) > 25000:
                 raise ConversionError("출력 자산의 500MB/25,000개 상한을 초과했습니다. 원본을 나누어 주세요.")

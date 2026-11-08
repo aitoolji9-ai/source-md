@@ -2,7 +2,7 @@
 name: source-preserve-md
 description: "호출명 마크다운 추출: 파일·웹페이지의 원문과 구조를 Markdown으로 추출·보존하고 이미지 문자는 로컬 OCR로 보완."
 metadata:
-  version: 0.9.3
+  version: 0.9.4
   platforms: [macos]
   hermes:
     tags: [markdown, 마크다운 추출, 마크다운, preservation, 원문결, 원문추출, local-ocr]
@@ -46,7 +46,28 @@ Hermes에서는 `skill_view(name="source-preserve-md")`의 `skill_dir`를 기준
 다른 컴퓨터에서는 먼저 엔진을 설치하고 `preserve-md doctor`로 의존성을 확인한 뒤 `preserve-md install-skill --target <호스트의_스킬폴더>/source-preserve-md`를 실행한다. 기존 스킬을 덮어쓰지 않는다. `.engine.json`은 해당 컴퓨터의 연결 정보이므로 공유·커밋하지 않고, 가상환경을 옮겼으면 새 폴더에 다시 설치한다. `SOURCE_PRESERVE_MD_ROOT`로 체크아웃 위치를 명시할 수도 있다. macOS Apple Vision OCR과 LibreOffice/브라우저 설치는 별도이며, 의존성이 없으면 기능 제한으로 보고한다.
 
 4. 결과의 `manifest.json`, `checks.json`, `03_변환검증보고서.md`와 생성된 MD를 재조회하고 `validate`를 실행한다. 저장 무결성, 내용 자동 비교, 의미/시각 검토는 별개다. OCR은 `ocr_used`와 `ocr.targets`의 대상별 인식·실패·미검사·끄기 상태 및 `assets/*-ocr.json`을 확인한다. `refinement`에는 영역별 재인식 후보·변경·불일치, 단위의 `ocr_tables`에는 격자선으로 복원한 셀/값/빈칸/병합/검토 대상이 있다. PDF에 텍스트가 있어도 이미지가 섞일 수 있다. 후보가 일치해도 OCR 정확도 인증은 아니며 선 없는 표·기울어진/끊긴 선·복잡한 다단 배치는 제한이 남는다. 오류·내용 불일치·원본 보관만 된 미지원·미추출을 성공으로 합치지 않는다. 이 엔진의 자동 결과는 `partial`이며 자동 `verified` 승격을 하지 않는다. OCR 실패/상한 초과/재시도 실패는 CLI 종료 코드 2로 보고하되 원본과 부분 결과는 남긴다.
-5. 사람에게 MD 경로와 전체 묶음 위치를 전달하고 알려진 제한을 필요한 만큼 밝힌다. MD만 전달하면 상대 자산이 빠지므로 이미지가 있는 경우 폴더 묶음 또는 ZIP을 함께 전달한다. OCR 끄기·실패·미검사 영역은 이미지 글자 미추출로 알린다. 한국어 OCR에도 오인식이 있으므로 원본 대조 없이 정확 추출 완료로 보고하지 않는다.
+5. 다권·장시간 추출은 책별 완료·미처리 쪽과 실제 처리 속도를 기록해 진행 및 예상 범위를 설명한다. 일부 OCR이나 최종 저장이 막혀도 독립적으로 가능한 로컬 통합과 검증을 진행하고, 막힌 이유·영향·남은 일을 즉시 알린다. 사용자가 중간 통합본을 요청하면 각 권의 기본 본문과 추가 OCR을 원본 페이지 위치에 중복 없이 합치고 미확인 쪽을 사용자가 지정한 표식으로 남긴다. 기존 중간 폴더는 별도 정리 지시 전까지 보존한다. 페이지 순서와 원본 텍스트 포함 여부를 재검사하되 OCR 정확도·시각 자료 완전성은 별도로 밝힌다.
+6. 사람에게 MD 경로와 전체 묶음 위치를 전달하고 알려진 제한을 필요한 만큼 밝힌다. MD만 전달하면 상대 자산이 빠지므로 이미지가 있는 경우 폴더 묶음 또는 ZIP을 함께 전달한다. OCR 끄기·실패·미검사 영역은 이미지 글자 미추출로 알린다. 한국어 OCR에도 오인식이 있으므로 원본 대조 없이 정확 추출 완료로 보고하지 않는다.
+
+## PDF의 페이지 체크포인트와 자동 통합
+
+PDF `--ocr auto`의 기본은 `text` 모드다. 책 전체 페이지의 초기 OCR을 먼저 한 번씩 저장하고, 좌표로 안전하게 배치할 수 있는 표만 구성한다. 각 페이지의 줄·셀을 반복 인식하는 `full` 모드는 `--ocr-detail full`로 원할 때 지정한다. `full`도 전체 초기 인식을 저장한 뒤 심화 재인식을 시작한다. 이미지 파일의 기존 심화 OCR과 PDF 기본 모드를 혼동하지 않는다.
+
+```text
+python3 scripts/run.py inventory 원본PDF폴더
+python3 scripts/run.py convert 책.pdf --out 새_책결과
+python3 scripts/run.py status 새_책결과
+python3 scripts/run.py resume 새_책결과
+python3 scripts/run.py convert 책.pdf --out 새_체크포인트 --pdf-max-pages 20
+python3 scripts/run.py resume 새_체크포인트 --max-pages 20
+python3 scripts/run.py convert 책.pdf --out 새_심화결과 --ocr-detail full
+```
+
+`inventory`는 바로 아래 PDF만 조사해 원본·분할본·과거 결과를 재귀로 섞지 않는다. 임시 Python `-c`/heredoc, 별도 PDF 분할 코드를 만들 필요가 없다. 큰 결과 JSON을 전부 출력하지 말고 `status`의 저장 페이지·남은 수·실제 쓰기 잠금 상태를 조회한다. `writer_active=false`는 현재 쓰기 실행이 없다는 뜻이며 저장된 중간 상태만으로 계속 실행 중이라고 보고하지 않는다.
+
+CLI 종료 3은 사용자가 지정한 페이지 수에서 안전하게 멈춘 체크포인트다. 실패나 전체 완료로 취급하지 말고 동일 폴더에 `resume`을 실행한다. 실행 도구가 중단돼도 원본 해시·페이지 체크포인트를 검증해 저장 완료 쪽을 재사용한다. 실패한 쪽도 다른 쪽 진행을 막지 않는다. 원본 또는 완료 자산 해시가 달라졌으면 재개를 중단하고 바뀐 대상을 보고한다. 동시에 같은 폴더에 두 실행을 시작하지 않는다.
+
+`processing.complete`는 선택한 모드의 자동 처리 완료이며 원문 정확도 인증이 아니다. `status=partial`, OCR 관측·신뢰도·후보/실패·원본 이미지/좌표와 알려진 한계는 그대로 남는다. 텍스트 인식과 구조 보완 실패를 구분하며, Hwiki 게시가 막혀도 독립적인 로컬 처리·통합을 끝내고 전달한다. 재개는 기존 책의 `00_원본복원.md`를 페이지 순서대로 다시 구성한다. 5쪽/1쪽 PDF 사본이나 별도 재시도 묶음을 계속 만들지 않는다.
 
 ## 추가 복원 범위
 

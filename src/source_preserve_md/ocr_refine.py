@@ -178,6 +178,9 @@ def refine_layout(image: Image.Image, observations: list[dict], call, *, skip_ta
         a,b,c,d = outer
         return a <= (x0+x1)/2 <= c and b <= (y0+y1)/2 <= d
     tables = [t for t in tables if not any(inside(t['bbox'],box) for box in skip_table_boxes)]
+    rejected=[t for t in tables if any(min(c['bbox'][2]-c['bbox'][0],c['bbox'][3]-c['bbox'][1])<=8 for c in t['cells'])]
+    report['rejected_tables']=[{'bbox':t['bbox'],'reason':'cell_collapses_under_grid_inset'} for t in rejected]
+    tables=[t for t in tables if t not in rejected]
     for table in tables:
         table['header_semantics_verified'] = False
         for cell in table['cells']:
@@ -361,3 +364,71 @@ def render_report(report):
             markdown.append(rendered)
             texts.append('\n'.join('\t'.join(c or '' for c in row) for row in table['values']))
     report.update(markdown='\n\n'.join(markdown),text='\n'.join(texts))
+
+
+def _text_layout(image, observations, *, skip_table_boxes=()):
+    """Preserve the first page OCR without spending requests on every glyph.
+
+    A grid is rendered only when its nonblank cells have unambiguous complete
+    observations. Uncertain geometry stays in the report; text stays readable.
+    """
+    width,height=image.size
+    report={'tables':[],'line_refinements':[],'issues':[],'rejected_tables':[],
+            'reading_order_method':'recursive_whitespace_xy_cut','reading_order_verified':False,
+            'layout_mode':'page_text_first','changed_lines':0,'disagreements':0}
+    blocks=[];used=set()
+    try:
+        candidates=detect_tables(image)
+    except Exception as error:
+        candidates=[];report['geometry_notice']=str(error)
+    for table in candidates:
+        if any(a <= (table['bbox'][0]+table['bbox'][2])/2 <= c and b <= (table['bbox'][1]+table['bbox'][3])/2 <= d for a,b,c,d in skip_table_boxes):continue
+        reason=''
+        if any(min(c['bbox'][2]-c['bbox'][0],c['bbox'][3]-c['bbox'][1])<=8 for c in table['cells']):reason='cell_collapses_under_grid_inset'
+        selected=set();filled=0
+        if not reason:
+            for cell in table['cells']:
+                a,b,c,d=cell['bbox'];matches=[]
+                for index,observation in enumerate(observations):
+                    if observation.get('duplicate_native'):continue
+                    x,y,w,h=observation['bbox'];x,y,w,h=x*width,y*height,w*width,h*height
+                    if a <= x+w/2 <= c and b <= y+h/2 <= d:
+                        if not (a-2 <= x and b-2 <= y and x+w <= c+2 and y+h <= d+2):reason='observation_crosses_cell_boundary';break
+                        matches.append((index,observation))
+                if reason:break
+                matches.sort(key=lambda item:(item[1]['bbox'][1],item[1]['bbox'][0]))
+                value='\n'.join(o['text'] for _,o in matches)
+                if not value and _has_ink(image.crop((a+4,b+4,c-4,d-4))):reason='cell_ink_not_resolved_by_page_ocr';break
+                cell.update(text=value,status='single_pass_observation' if value else 'no_ink_detected',passes=[])
+                selected.update(i for i,_ in matches);filled+=bool(value)
+            if filled<2 and not reason:reason='insufficient_text_support'
+        if reason:
+            report['rejected_tables'].append({'bbox':table['bbox'],'reason':reason});continue
+        table.update(header_semantics_verified=False,unresolved_cells=0,review_cells=[],
+                     blank_cells=sum(not c['text'] for c in table['cells']),
+                     values=[[None for _ in range(table['column_count'])] for _ in range(table['row_count'])])
+        for cell in table['cells']:table['values'][cell['row']][cell['column']]=cell['text']
+        used.update(selected);index=len(report['tables']);report['tables'].append(table)
+        blocks.append({'kind':'table','table_index':index,'bbox':table['bbox']})
+    for index,o in enumerate(observations):
+        if index in used or o.get('duplicate_native') or not o.get('text','').strip():continue
+        x,y,w,h=o['bbox'];blocks.append({'kind':'text','text':o['text'],'bbox':[x*width,y*height,(x+w)*width,(y+h)*height],'source_observation':index})
+    report['blocks']=order_blocks(blocks);render_report(report)
+    return report
+
+
+def text_layout(image,observations,*,skip_table_boxes=()):
+    try:
+        return _text_layout(image,observations,skip_table_boxes=skip_table_boxes)
+    except Exception as error:
+        width,height=image.size
+        blocks=[]
+        for index,o in enumerate(observations):
+            if o.get('duplicate_native') or not o.get('text','').strip():continue
+            x,y,w,h=o['bbox'];blocks.append({'kind':'text','text':o['text'],'bbox':[x*width,y*height,(x+w)*width,(y+h)*height],'source_observation':index})
+        report={'tables':[],'line_refinements':[],'issues':[],'rejected_tables':[],
+                'geometry_notice':str(error),'layout_mode':'page_text_first_fallback',
+                'reading_order_method':'recursive_whitespace_xy_cut','reading_order_verified':False,
+                'changed_lines':0,'disagreements':0,'blocks':order_blocks(blocks)}
+        render_report(report)
+        return report

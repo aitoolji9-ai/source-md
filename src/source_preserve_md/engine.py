@@ -96,6 +96,14 @@ def report_text(manifest: dict, checks: list[dict], integrity: dict) -> str:
              "이 검사는 저장 무결성·지원된 텍스트/코드 비교를 확인합니다. 화면의 픽셀 동일성, 시각 의미, 모든 요소의 의미적 완전성을 자동 인증하지 않습니다.", "",
              "## 알려진 제한·미확인", ""]
     lines.extend(f"- `{w['source_locator']}` · **{w['code']}**: {w['message']}" for w in warnings)
+    processing=manifest.get('processing')
+    if processing:
+        lines.extend(['','## PDF 페이지 처리 상태','',
+                      '- 자동 처리: '+('완료' if processing['complete'] else '체크포인트 저장 / 미처리 있음'),
+                      f"- 페이지: {processing['checkpointed_pages']}/{processing['total_pages']}",
+                      f"- OCR 모드: {processing['detail']} (text: 초기 글자 우선, full: 이후 심화 재인식)",
+                      '- 재개/진행 조회: preserve-md resume 결과폴더 / preserve-md status 결과폴더',
+                      '- 처리 완료와 OCR 정확도 인증은 다릅니다. 체크포인트는 재개 시 별도로 해시 검증합니다.'])
     if not warnings:
         lines.append("- 자동 검사에서 알려진 누락을 발견하지 못했습니다. 미탐지 가능성과 시각·의미 미검증은 남아 있습니다.")
     lines.extend(["", "## 재사용", "", "- 사람은 `00_원본복원.md`를 읽고, 원본·자산·보고서로 돌아갈 수 있습니다.",
@@ -183,7 +191,7 @@ def validate_bundle(folder: Path | str) -> dict:
 
 def convert(source: str | Path, output: str | Path, *, data: bytes | None = None, filename: str = "", encoding: str = "",
             dynamic: bool = False, download_assets: bool = True, selector: str = "", ocr: str = "auto", dom_snapshot=None,
-            auto_tabs: bool=True, tab_selector: str='[role="tab"]', tab_wait_ms: int=5000, ocr_corrections=None) -> dict:
+            auto_tabs: bool=True, tab_selector: str='[role="tab"]', tab_wait_ms: int=5000, ocr_corrections=None, pdf_max_pages=None, ocr_detail="text", progress=None) -> dict:
     if ocr not in ("auto", "off"):
         raise ConversionError("OCR 옵션은 auto 또는 off여야 합니다.")
     if type(tab_wait_ms) is not int or not 100<=tab_wait_ms<=30000:
@@ -226,6 +234,12 @@ def convert(source: str | Path, output: str | Path, *, data: bytes | None = None
         if is_url or detect(data,filename,content_type)!='html':
             raise ConversionError('DOM 스냅샷은 저장한 원본 HTML 파일과 함께 입력해야 합니다.')
         snapshot_data,snapshot_payload=load_snapshot(dom_snapshot,data)
+    if (data.startswith(b'%PDF') or Path(filename).suffix.lower()=='.pdf') and ocr=='auto' and ocr_corrections is None:
+        from .pdf_job import start_pdf
+        return start_pdf(data,filename,output,source_path=source_path,url=final_url or None,
+                         max_pages=pdf_max_pages,detail=ocr_detail,progress=progress)
+    if pdf_max_pages is not None:
+        raise ConversionError('페이지 체크포인트는 PDF OCR auto 변환에서 사용하세요.')
     root = Path(output).expanduser().resolve()
     # Existing output is never replaced. No source modification.
     root.mkdir(parents=True, exist_ok=False)
@@ -268,47 +282,53 @@ def convert(source: str | Path, output: str | Path, *, data: bytes | None = None
         if corrections_data is not None:
             from .review import apply_corrections
             apply_corrections(result,assets,corrections_data,corrections_payload)
-        checks = machine_checks(result)
-        source_info["format"] = result.format
-        from .review import write_review
-        write_review(result,assets,source_info,checks)
-        markdown, ranges = build_markdown(result, source_info, captured_at)
-        (root / PRIMARY).write_bytes(markdown)
-        json_write(root / "structure.json", result.structure())
-        json_write(root / "checks.json", {"checks": checks, "ai_calls": 0, "generative_ai_calls": 0,
-                                         "ocr_used": ocr_summary["used"], "ocr": ocr_summary,
-                                         "meaning_reviewed": False, "visual_reviewed": False})
-        unit_ids = [u.id for u in result.units]
-        from . import __version__
-        manifest = {"schema_version": 1, "producer": "source-preserve-md/" + __version__, "source": source_info,
-                    "extraction_date": captured_at, "inventory": {"unit_ids": unit_ids, "basis": "형식별 파서가 읽은 상위 페이지·시트·슬라이드·본문 목록. 미탐지 하위 요소 가능성은 보고서 참조."},
-                    "units": [{"id": u.id, "anchor": u.id, "source_locator": u.source_locator, "extraction": "partial",
-                               "checks": {stage: "pending" for stage in ("scope", "text", "visual", "structure", "utility")}} for u in result.units],
-                    "markdown_ranges": ranges, "assets": assets.records, "unresolved": result.warnings,
-                    "status": "partial", "ai_calls": 0, "generative_ai_calls": 0,
-                    "ocr_used": ocr_summary["used"], "ocr": ocr_summary, "artifacts": {}}
-        for path in sorted(root.rglob("*")):
-            if path.is_file() and path.name not in ("manifest.json", "integrity.json", REPORT):
-                manifest["artifacts"][path.relative_to(root).as_posix()] = sha256(path.read_bytes())
-        json_write(root / "manifest.json", manifest)
-        integrity = validate_bundle(root)
-        (root / REPORT).write_text(report_text(manifest, checks, integrity), encoding="utf-8")
-        manifest["artifacts"][REPORT] = sha256((root / REPORT).read_bytes())
-        json_write(root / "manifest.json", manifest)
-        integrity = validate_bundle(root)
-        json_write(root / "integrity.json", integrity)
-        if source_path and sha256(source_path.read_bytes()) != source_info["sha256"]:
-            raise ConversionError("변환 중 입력 파일이 바뀌었습니다. 보관한 원본은 남겼으며 현재 입력으로 다시 실행해 주세요.")
-        return {"output": str(root), "markdown": str(root / PRIMARY), "format": result.format, "title": result.title,
-                "units": len(unit_ids), "warnings": result.warnings, "integrity": integrity,
-                "machine_checks": {"passed": sum(c["passed"] for c in checks), "total": len(checks)}, "status": "partial",
-                "ai_calls": 0, "generative_ai_calls": 0, "ocr_used": ocr_summary["used"], "ocr": ocr_summary}
+        return finish_bundle(result,assets,source_info,captured_at,ocr_summary,source_path=source_path)
     except Exception as error:
         json_write(root / "error.json", {"status": "failed", "error": str(error), "source": source_info, "source_preserved": True})
         if isinstance(error, ConversionError):
             raise
         raise ConversionError(f"변환 실패: {type(error).__name__}: {error}. 원본은 {root / source_relative}에 보존했습니다.") from error
 
+
+
+def finish_bundle(result, assets, source_info, captured_at, ocr_summary, *, source_path=None):
+    root=assets.root
+    checks = machine_checks(result)
+    source_info["format"] = result.format
+    from .review import write_review
+    write_review(result,assets,source_info,checks)
+    markdown, ranges = build_markdown(result, source_info, captured_at)
+    (root / PRIMARY).write_bytes(markdown)
+    json_write(root / "structure.json", result.structure())
+    json_write(root / "checks.json", {"checks": checks, "ai_calls": 0, "generative_ai_calls": 0,
+                                     "ocr_used": ocr_summary["used"], "ocr": ocr_summary,
+                                     "meaning_reviewed": False, "visual_reviewed": False})
+    unit_ids = [u.id for u in result.units]
+    from . import __version__
+    manifest = {"schema_version": 1, "producer": "source-preserve-md/" + __version__, "source": source_info,
+                "extraction_date": captured_at, "inventory": {"unit_ids": unit_ids, "basis": "형식별 파서가 읽은 상위 페이지·시트·슬라이드·본문 목록. 미탐지 하위 요소 가능성은 보고서 참조."},
+                "units": [{"id": u.id, "anchor": u.id, "source_locator": u.source_locator, "extraction": "partial",
+                           "checks": {stage: "pending" for stage in ("scope", "text", "visual", "structure", "utility")}} for u in result.units],
+                "markdown_ranges": ranges, "assets": assets.records, "unresolved": result.warnings,
+                "status": "partial", "processing": result.metadata.get("pdf_processing"), "ai_calls": 0, "generative_ai_calls": 0,
+                "ocr_used": ocr_summary["used"], "ocr": ocr_summary, "artifacts": {}}
+    for path in sorted(root.rglob("*")):
+        if path.is_file() and path.name not in ("manifest.json", "integrity.json", REPORT) and not (result.metadata.get("pdf_processing") and (path.relative_to(root).parts[0]=="checkpoint" or (path.parent==root and path.name in ("pdf-job.json",".pdf-job.lock")))):
+            manifest["artifacts"][path.relative_to(root).as_posix()] = sha256(path.read_bytes())
+    json_write(root / "manifest.json", manifest)
+    integrity = validate_bundle(root)
+    (root / REPORT).write_text(report_text(manifest, checks, integrity), encoding="utf-8")
+    manifest["artifacts"][REPORT] = sha256((root / REPORT).read_bytes())
+    json_write(root / "manifest.json", manifest)
+    integrity = validate_bundle(root)
+    json_write(root / "integrity.json", integrity)
+    if source_path and sha256(source_path.read_bytes()) != source_info["sha256"]:
+        raise ConversionError("변환 중 입력 파일이 바뀌었습니다. 보관한 원본은 남겼으며 현재 입력으로 다시 실행해 주세요.")
+    return {"output": str(root), "markdown": str(root / PRIMARY), "format": result.format, "title": result.title,
+            "units": len(unit_ids), "warnings": result.warnings, "integrity": integrity,
+            "machine_checks": {"passed": sum(c["passed"] for c in checks), "total": len(checks)}, "status": "partial",
+            "ai_calls": 0, "generative_ai_calls": 0, "ocr_used": ocr_summary["used"], "ocr": ocr_summary,
+            **({"processing":result.metadata["pdf_processing"]} if "pdf_processing" in result.metadata else {})}
 
 def new_output(parent: Path | str, name: str) -> Path:
     return Path(parent) / (datetime.now().strftime("%Y%m%d-%H%M%S-") + safe_name(Path(name).stem)[:60] + "-" + uuid.uuid4().hex[:8])

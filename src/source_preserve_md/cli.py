@@ -26,6 +26,15 @@ def main(argv=None) -> int:
     conversion.add_argument("--no-assets", action="store_true", help="원격 이미지 다운로드 끄기")
     conversion.add_argument("--selector", default="", help="HTML의 추출 범위를 지정하는 CSS 선택자. 기본: body 전체")
     conversion.add_argument("--ocr", choices=("auto", "off"), default="auto", help="이미지 문자 로컬 OCR: auto(기본, macOS Vision) / off(직접 추출만)")
+    conversion.add_argument('--pdf-max-pages',type=int,help='PDF 페이지 작업 N개 후 체크포인트에 멈춤; resume으로 이어하기')
+    conversion.add_argument('--ocr-detail',choices=('text','full'),default='text',help='PDF: 기본 text는 전체 페이지 초기 OCR 우선, full은 이후 줄/셀 심화 재인식')
+    inventory=commands.add_parser('inventory',help='지정 폴더 바로 아래의 원본 PDF 목록·쪽수·해시 조회(재귀/OCR 없음)')
+    inventory.add_argument('folder',type=Path)
+    status=commands.add_parser('status',help='PDF 체크포인트의 진행·실제 쓰기 잠금을 읽기 전용으로 조회')
+    status.add_argument('folder',type=Path)
+    resume=commands.add_parser('resume',help='원본 해시·페이지 체크포인트를 검증하고 PDF 미처리 부분만 재개')
+    resume.add_argument('folder',type=Path)
+    resume.add_argument('--max-pages',type=int)
     validation = commands.add_parser("validate", help="결과 묶음을 재조회해 저장 무결성 검사")
     validation.add_argument("folder", type=Path)
     serving = commands.add_parser("serve", help="로컬 사용자 화면 실행")
@@ -49,9 +58,27 @@ def main(argv=None) -> int:
             from .preflight import inspect_environment
             result=inspect_environment();print(json.dumps(result,ensure_ascii=False,indent=2))
             return 0 if result['passed'] else 2
-        if args.command in ('convert','serve','correct','capture-tool'):
+        if args.command in ('convert','resume','serve','correct','capture-tool'):
             from .preflight import require_environment
             require_environment()
+        def page_progress(event):
+            print(json.dumps({'pdf_progress':event},ensure_ascii=False),file=__import__('sys').stderr,flush=True)
+        if args.command=='inventory':
+            from .pdf_job import inventory_pdf
+            print(json.dumps(inventory_pdf(args.folder),ensure_ascii=False,indent=2))
+            return 0
+        if args.command=='status':
+            from .pdf_job import status_pdf
+            print(json.dumps(status_pdf(args.folder),ensure_ascii=False,indent=2))
+            return 0
+        if args.command=='resume':
+            from .pdf_job import resume_pdf
+            result=resume_pdf(args.folder,max_pages=args.max_pages,progress=page_progress)
+            from .pdf_job import cli_summary
+            print(json.dumps(cli_summary(result),ensure_ascii=False,indent=2))
+            if not result['integrity']['passed'] or result['machine_checks']['passed']!=result['machine_checks']['total']:return 2
+            if result['processing']['failed_pages'] or any(w['code'] in ('ocr_failed','ocr_limit','ocr_refinement_failed') for w in result['warnings']):return 2
+            return 0 if result['processing']['complete'] else 3
         if args.command == 'doctor':
             from .integration import doctor
             print(json.dumps(doctor(), ensure_ascii=False, indent=2))
@@ -72,18 +99,24 @@ def main(argv=None) -> int:
             if (args.dom_snapshot or args.ocr_corrections) and len(args.sources)!=1:
                 raise ConversionError('DOM 스냅샷/교정 JSON은 한 개의 원본과 짝지어 입력하세요.')
             failed = False
+            checkpointed=False
             for source in args.sources:
                 output = args.out if len(args.sources) == 1 else new_output(args.out, source)
                 try:
                     result = convert(source, output, encoding=args.encoding, dynamic=args.dynamic, download_assets=not args.no_assets, selector=args.selector, ocr=args.ocr,dom_snapshot=args.dom_snapshot,
-                                     auto_tabs=not args.no_auto_tabs,tab_selector=args.tab_selector,tab_wait_ms=args.tab_wait_ms,ocr_corrections=args.ocr_corrections)
-                    print(json.dumps(result, ensure_ascii=False, indent=2))
+                                     auto_tabs=not args.no_auto_tabs,tab_selector=args.tab_selector,tab_wait_ms=args.tab_wait_ms,ocr_corrections=args.ocr_corrections,pdf_max_pages=args.pdf_max_pages,ocr_detail=args.ocr_detail,progress=page_progress)
+                    if result.get("processing"):
+                        from .pdf_job import cli_summary
+                        print(json.dumps(cli_summary(result),ensure_ascii=False,indent=2))
+                    else:
+                        print(json.dumps(result, ensure_ascii=False, indent=2))
+                    checkpointed |= bool(result.get("processing") and not result["processing"]["complete"])
                     failed |= not result["integrity"]["passed"] or any(notice["code"] in ("unsupported_format", "ocr_failed", "ocr_limit", "ocr_refinement_failed",'automatic_tab_incomplete','hwp_conversion_incomplete','hwp_note_reference_unresolved') for notice in result["warnings"])
                     failed |= result["machine_checks"]["passed"] != result["machine_checks"]["total"]
                 except (ConversionError, FileExistsError) as e:
                     print(json.dumps({"source": source, "status": "failed", "error": str(e)}, ensure_ascii=False))
                     failed = True
-            return 2 if failed else 0
+            return 2 if failed else 3 if checkpointed else 0
         if args.command == "validate":
             result = validate_bundle(args.folder)
             print(json.dumps(result, ensure_ascii=False, indent=2))

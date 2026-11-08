@@ -110,6 +110,25 @@ if sys.platform=='darwin':
  expected={tuple(c[k] for k in ['row','column','rowspan','colspan']):''.join(c['text'].split()) for c in truth['cells']}
  check('installed-shadowed-table-md-values-spans-blank',actual==expected and validate_bundle(folder)['passed'])
 
+# Fresh installed PDF job, real OCR and the public installed-skill resume path.
+if sys.platform=='darwin':
+ import pymupdf
+ pdf=pymupdf.open()
+ for number in range(3):
+  page=pdf.new_page(width=900,height=250)
+  page.insert_image(pymupdf.Rect(0,0,900,180),filename=str(inputs/'ocr.png'))
+  page.insert_link({'kind':pymupdf.LINK_URI,'from':pymupdf.Rect(0,200,100,240),'uri':'https://example.com/'})
+ pdf.save(inputs/'resumable.pdf');pdf.close()
+ folder=root/'pdf-resume'
+ first=subprocess.run([sys.executable,str(skill/'scripts/run.py'),'convert',str(inputs/'resumable.pdf'),'--out',str(folder),'--pdf-max-pages','1'],capture_output=True,text=True)
+ check('installed-pdf-checkpoint-exit3',first.returncode==3 and json.loads(first.stdout)['processing']['checkpointed_pages']==1 and validate_bundle(folder)['passed'])
+ resumed=subprocess.run([sys.executable,str(skill/'scripts/run.py'),'resume',str(folder)],capture_output=True,text=True)
+ state=json.loads((folder/'pdf-job.json').read_text());text=(folder/PRIMARY).read_text()
+ check('installed-skill-pdf-resume-and-merge',resumed.returncode==0 and json.loads(resumed.stdout)['processing']['complete'] and validate_bundle(folder)['passed'] and text.count('OCR INSTALL 84729')==3)
+ check('installed-pdf-reuses-completed-pages',[entry['page'] for entry in state['history']]==[1,2,3] and len(list((folder/'source').glob('*.pdf')))==1)
+ status=subprocess.run([sys.executable,str(skill/'scripts/run.py'),'status',str(folder)],capture_output=True,text=True)
+ check('installed-pdf-readonly-status',status.returncode==0 and json.loads(status.stdout)['complete'] and not json.loads(status.stdout)['writer_active'])
+
 # Installed wheel's live Flask routes and download bytes, without source checkout imports.
 app=create_app(root/'web-outputs');client=app.test_client();token=client.get('/api/config').json['token']
 created=client.post('/api/convert',headers={'X-Local-Token':token},data={'file':(io.BytesIO(original),'input.md')})

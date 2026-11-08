@@ -5,7 +5,7 @@ backend-path = ["."]
 
 [project]
 name = "source-preserve-md"
-version = "0.9.3"
+version = "0.9.4"
 readme = "README.md"
 license = "AGPL-3.0-only"
 license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
